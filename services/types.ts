@@ -69,3 +69,36 @@ export interface OpcoesFormulario {
 export interface MetricasSistema {
     [key: string]: any;
 }
+
+// ===== XAI (Explainable AI) =====
+
+export interface XaiResultadoResponse {
+    valor_predito: number;
+    erro_modelo: number;
+    imagem_base64: string; // data:image/png;base64,...
+    variaveis: string[];
+}
+
+export type XaiResultadoRequest =
+    | { [key: string]: any }
+    | { pacienteDados: { [key: string]: any } }
+    | { paciente_dados: { [key: string]: any } };
+
+export interface XaiHealthcheck {
+    status: string;
+}
+
+export interface XaiPaciente {
+    id?: number;
+    nome: string;
+    ectoscopia: number;
+    mucosas: number;
+    card: number;
+    hg: number;
+    perfusao: number;
+    leuco: number;
+    eosi: number;
+    consciente: number;
+    hem: number;
+    febre: number;
+}

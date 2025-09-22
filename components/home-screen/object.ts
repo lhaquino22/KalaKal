@@ -50,11 +50,11 @@ const menu: Menu[][] = [
       screen: "/planoEnfrentamento",
     },
     {
-      image: require("@/assets/images/KalaCal.png"),
-      icone: "information-outline",
-      titulo: "Referência e contrareferência",
+      image: require("@/assets/images/kalacal-chart.png"),
+      icone: "chart-areaspline",
+      titulo: "XAI - Explicabilidade",
       cor: "seagreen",
-      screen: "/kalacal",
+      screen: "/xai" as any,
     }
     /* {
       image: require("@/assets/images/referencia-icon.png"),

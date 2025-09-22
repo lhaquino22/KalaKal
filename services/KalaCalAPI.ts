@@ -2,8 +2,8 @@ import { KalacalFormData, KalacalOptions, KalacalResponse } from '@/components/k
 import { Ocorrencia, OcorrenciaForm } from '@/components/ocorrencias/types';
 import env from '@/config/env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { ApiInfo, ApiResponse, AuthResponse, LoginCredentials, MetricasSistema, RefreshTokenResponse, RegisterData, User } from './types';
+import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import { ApiInfo, ApiResponse, AuthResponse, LoginCredentials, MetricasSistema, RefreshTokenResponse, RegisterData, User, XaiHealthcheck, XaiPaciente, XaiResultadoRequest, XaiResultadoResponse } from './types';
 
 interface ApiConfig {
     baseURL: string;
@@ -27,7 +27,7 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(
-    async (config) => {
+    async (config: InternalAxiosRequestConfig) => {
         const token = await AsyncStorage.getItem('accessToken');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
@@ -56,7 +56,7 @@ apiClient.interceptors.response.use(
                     originalRequest.headers.Authorization = `Bearer ${response.data.access}`;
                     return apiClient(originalRequest);
                 }
-            } catch (refreshError) {
+            } catch (refreshError: unknown) {
                 await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
             }
         }
@@ -98,19 +98,20 @@ class KalaCalAPI {
                 data: response.data,
                 status: response.status,
             };
-        } catch (error) {
-            if (axios.isAxiosError(error)) {
+        } catch (unknownError) {
+            const err = unknownError as unknown;
+            if (axios.isAxiosError(err)) {
                 return {
                     success: false,
-                    error: error.response?.data?.detail || error.message || "Erro desconhecido",
-                    status: error.response?.status,
-                    data: error.response?.data
+                    error: (err.response?.data as any)?.detail || err.message || "Erro desconhecido",
+                    status: err.response?.status,
+                    data: err.response?.data as any
                 };
             }
 
             return {
                 success: false,
-                error: String(error) || "Erro desconhecido",
+                error: err instanceof Error ? err.message : "Erro desconhecido",
             };
         }
     }
@@ -118,17 +119,17 @@ class KalaCalAPI {
     // ===== ENDPOINTS PÚBLICOS (apenas API Key) =====
 
     static async getAPIInfo(): Promise<ApiResponse<ApiInfo>> {
-        return this.makeRequest(() => apiClient.get<ApiInfo>('/api/auth/info/'));
+        return this.makeRequest<ApiInfo>(() => apiClient.get<ApiInfo>('/api/auth/info/'));
     }
 
     static async getAuthStatus(): Promise<ApiResponse<any>> {
-        return this.makeRequest(() => apiClient.get('/api/auth/status/'));
+        return this.makeRequest<any>(() => apiClient.get('/api/auth/status/'));
     }
 
     // ===== AUTENTICAÇÃO =====
 
     static async register(userData: RegisterData): Promise<ApiResponse<AuthResponse>> {
-        const result = await this.makeRequest(() =>
+        const result = await this.makeRequest<AuthResponse>(() =>
             apiClient.post<AuthResponse>('/api/auth/register/', userData)
         );
 
@@ -144,7 +145,7 @@ class KalaCalAPI {
     }
 
     static async login(credentials: LoginCredentials): Promise<ApiResponse<AuthResponse>> {
-        const result = await this.makeRequest(() =>
+        const result = await this.makeRequest<AuthResponse>(() =>
             apiClient.post<AuthResponse>('/api/auth/login/', credentials, {
                 headers: { "Content-Type": "application/json" }
             })
@@ -170,7 +171,7 @@ class KalaCalAPI {
                     apiClient.post('/api/auth/logout/', { refresh: refreshToken })
                 );
             }
-        } catch (error) {
+        } catch (error: unknown) {
             console.error('Erro no logout do servidor:', error);
         } finally {
             await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
@@ -196,11 +197,11 @@ class KalaCalAPI {
     // ===== PERFIL DO USUÁRIO (Requer JWT) =====
 
     static async getProfile(): Promise<ApiResponse<User>> {
-        return this.makeRequest(() => apiClient.get<User>('/api/auth/profile/'));
+        return this.makeRequest<User>(() => apiClient.get<User>('/api/auth/profile/'));
     }
 
     static async updateProfile(userData: Partial<User>): Promise<ApiResponse<User>> {
-        const result = await this.makeRequest(() =>
+        const result = await this.makeRequest<User>(() =>
             apiClient.put<User>('/api/auth/profile/update/', userData)
         );
 
@@ -215,21 +216,21 @@ class KalaCalAPI {
     // ===== CASOS (Requer JWT) =====
 
     static async getCasos(): Promise<ApiResponse<Ocorrencia[]>> {
-        return this.makeRequest(() => apiClient.get<Ocorrencia[]>('/api/casos/'));
+        return this.makeRequest<Ocorrencia[]>(() => apiClient.get<Ocorrencia[]>('/api/casos/'));
     }
 
     static async createCaso(casoData: FormData): Promise<ApiResponse<OcorrenciaForm>> {
-        return this.makeRequest(() => apiClient.post<OcorrenciaForm>('/api/casos/', casoData, {
+        return this.makeRequest<OcorrenciaForm>(() => apiClient.post<OcorrenciaForm>('/api/casos/', casoData, {
             headers: { "Content-Type": "multipart/form-data" },
         }));
     }
 
     static async getCaso(id: number): Promise<ApiResponse<OcorrenciaForm>> {
-        return this.makeRequest(() => apiClient.get<OcorrenciaForm>(`/api/casos/${id}/`));
+        return this.makeRequest<OcorrenciaForm>(() => apiClient.get<OcorrenciaForm>(`/api/casos/${id}/`));
     }
 
     static async updateCaso(id: number, casoData: FormData): Promise<ApiResponse<OcorrenciaForm>> {
-        return this.makeRequest(() => apiClient.put<Ocorrencia>(`/api/casos/${id}/`, casoData, {
+        return this.makeRequest<OcorrenciaForm>(() => apiClient.put<Ocorrencia>(`/api/casos/${id}/`, casoData, {
             headers: { "Content-Type": "multipart/form-data" }
         }));
     }
@@ -241,17 +242,17 @@ class KalaCalAPI {
     // ===== KALACAL CALCULATOR (Requer JWT) =====
 
     static async calcularProbabilidade(dadosCalculo: KalacalFormData): Promise<ApiResponse<KalacalResponse>> {
-        return this.makeRequest(() =>
+        return this.makeRequest<KalacalResponse>(() =>
             apiClient.post('/api/kalacal/calcular/', dadosCalculo)
         );
     }
 
     static async getOpcoesFormulario(): Promise<ApiResponse<KalacalOptions>> {
-        return this.makeRequest(() => apiClient.get<KalacalOptions>('/api/kalacal/opcoes/'));
+        return this.makeRequest<KalacalOptions>(() => apiClient.get<KalacalOptions>('/api/kalacal/opcoes/'));
     }
 
     static async getMetricasSistema(): Promise<ApiResponse<MetricasSistema>> {
-        return this.makeRequest(() => apiClient.get<MetricasSistema>('/api/kalacal/metricas/'));
+        return this.makeRequest<MetricasSistema>(() => apiClient.get<MetricasSistema>('/api/kalacal/metricas/'));
     }
 
     // ===== MÉTODOS DE CONVENIÊNCIA =====
@@ -260,7 +261,7 @@ class KalaCalAPI {
         try {
             const token = await AsyncStorage.getItem('accessToken');
             return !!token;
-        } catch (error) {
+        } catch (error: unknown) {
             return false;
         }
     }
@@ -269,13 +270,53 @@ class KalaCalAPI {
         try {
             const userString = await AsyncStorage.getItem('user');
             return userString ? JSON.parse(userString) : null;
-        } catch (error) {
+        } catch (error: unknown) {
             return null;
         }
     }
 
     static async clearAuthData(): Promise<void> {
         await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
+    }
+
+    // ===== XAI (Explainable AI) =====
+
+    // Healthcheck público (sem necessidade de JWT)
+    static async getXaiHealthcheck(): Promise<ApiResponse<XaiHealthcheck>> {
+        // Força não enviar Authorization se houver token, mantendo apenas X-API-Key
+        return this.makeRequest<XaiHealthcheck>(() => apiClient.get<XaiHealthcheck>('/api/xai/teste/', {
+            headers: { 'Authorization': '' }
+        }));
+    }
+
+    // Resultado principal (requer JWT + X-API-Key)
+    static async getXaiResultado(payload: XaiResultadoRequest): Promise<ApiResponse<XaiResultadoResponse>> {
+        return this.makeRequest<XaiResultadoResponse>(() => apiClient.post<XaiResultadoResponse>('/api/xai/resultado/', payload));
+    }
+
+    // CRUD Pacientes (opcional / debug) — requer JWT + X-API-Key
+    static async listXaiPacientes(): Promise<ApiResponse<XaiPaciente[]>> {
+        return this.makeRequest<XaiPaciente[]>(() => apiClient.get<XaiPaciente[]>('/api/xai/pacientes/'));
+    }
+
+    static async createXaiPaciente(data: XaiPaciente): Promise<ApiResponse<XaiPaciente>> {
+        return this.makeRequest<XaiPaciente>(() => apiClient.post<XaiPaciente>('/api/xai/pacientes/', data));
+    }
+
+    static async getXaiPaciente(id: number): Promise<ApiResponse<XaiPaciente>> {
+        return this.makeRequest<XaiPaciente>(() => apiClient.get<XaiPaciente>(`/api/xai/pacientes/${id}/`));
+    }
+
+    static async updateXaiPaciente(id: number, data: XaiPaciente): Promise<ApiResponse<XaiPaciente>> {
+        return this.makeRequest<XaiPaciente>(() => apiClient.put<XaiPaciente>(`/api/xai/pacientes/${id}/`, data));
+    }
+
+    static async patchXaiPaciente(id: number, data: Partial<XaiPaciente>): Promise<ApiResponse<XaiPaciente>> {
+        return this.makeRequest<XaiPaciente>(() => apiClient.patch<XaiPaciente>(`/api/xai/pacientes/${id}/`, data));
+    }
+
+    static async deleteXaiPaciente(id: number): Promise<ApiResponse<void>> {
+        return this.makeRequest<void>(() => apiClient.delete<void>(`/api/xai/pacientes/${id}/`));
     }
 }
 

@@ -18,14 +18,18 @@ export default function Menu() {
                 style={estilo.fill}
                 onPress={() => router.push(item[0].screen)}
               >
-                <MenuCardItem image={item[0].image} />
+                <MenuCardItem image={item[0].image} title={item[0].titulo} />
               </TouchableOpacity>
-              <TouchableOpacity
-                style={estilo.fill}
-                onPress={() => router.push(item[1].screen)}
-              >
-                <MenuCardItem image={item[1].image} />
-              </TouchableOpacity>
+              {item[1] ? (
+                <TouchableOpacity
+                  style={estilo.fill}
+                  onPress={() => router.push(item[1].screen)}
+                >
+                  <MenuCardItem image={item[1].image} title={item[1].titulo} />
+                </TouchableOpacity>
+              ) : (
+                <View style={estilo.fill} />
+              )}
             </View>
           );
         })}

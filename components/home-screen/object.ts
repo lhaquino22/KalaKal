@@ -50,19 +50,21 @@ const menu: Menu[][] = [
       screen: "/planoEnfrentamento",
     },
     {
+      image: require("@/assets/images/KalaCal.png"),
+      icone: "calculator",
+      titulo: "KalaCal - Calculadora",
+      cor: "steelblue",
+      screen: "/kalacal" as any,
+    },
+  ],
+  [
+    {
       image: require("@/assets/images/kalacal-chart.png"),
-      icone: "chart-areaspline",
-      titulo: "XAI - Explicabilidade",
+      icone: "brain",
+      titulo: "🧠 XAI - Explicabilidade",
       cor: "seagreen",
       screen: "/xai" as any,
-    }
-    /* {
-      image: require("@/assets/images/referencia-icon.png"),
-      icone: "information-outline",
-      titulo: "Referência e contrareferência",
-      cor: "seagreen",
-      screen: "/leishmaniose",
-    }, */
+    },
   ],
 ];
 

@@ -77,11 +77,11 @@ export interface XaiResultadoResponse {
     erro_modelo: number;
     imagem_base64: string; // data:image/png;base64,...
     variaveis: string[];
+    abordagem?: string;
+    total_features?: number;
 }
 
-export type XaiResultadoRequest =
-    | { pacienteDados: { [key: string]: any } }
-    | { [key: string]: any };
+export type XaiResultadoRequest = { [key: string]: any };
 
 export interface XaiHealthcheck {
     status: string;

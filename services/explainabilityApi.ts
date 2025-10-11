@@ -28,57 +28,16 @@ export class ExplainabilityApi {
   }
 
   /**
-   * Gera explicação SHAP para dados do paciente
+   * Gera explicação SHAP para dados do paciente usando detecção automática de modelo
    */
   static async generateExplanation(
-    patientData: Record<string, any>,
-    selectedModel?: string
+    patientData: Record<string, any>
   ): Promise<ExplanationResult> {
     try {
-      // Se modelo específico foi selecionado, validar
-      if (selectedModel) {
-        const modelConfig = MODELS_CONFIG[selectedModel];
-        if (!modelConfig) {
-          throw new Error(`Modelo "${selectedModel}" não existe`);
-        }
-
-        // Validar dados baseado no modelo selecionado
-        const validationErrors = validatePatientData(patientData, modelConfig.features);
-        if (Object.keys(validationErrors).length > 0) {
-          const errorMessages = Object.values(validationErrors).join(', ');
-          throw new Error(`Campos obrigatórios para ${modelConfig.name}: ${errorMessages}`);
-        }
-
-        // Verificar campos obrigatórios
-        const missing = modelConfig.features.filter(field => 
-          patientData[field] === undefined || 
-          patientData[field] === null || 
-          patientData[field] === ''
-        );
-
-        if (missing.length > 0) {
-          throw new Error(`Campos obrigatórios para ${modelConfig.name}: ${missing.join(', ')}`);
-        }
-
-        // Validações específicas por tipo
-        if (patientData.Idademeses < 0 || patientData.Idademeses > 1200) {
-          throw new Error('Idade deve estar entre 0 e 1200 meses');
-        }
-
-        if (patientData.peso <= 0 || patientData.peso > 200) {
-          throw new Error('Peso deve estar entre 0.1 e 200 kg');
-        }
-      }
-
       // Converter booleans para números (0/1) como esperado pela API
-      // E filtrar apenas os campos necessários para o modelo selecionado
       const processedData: Record<string, any> = {};
       
-      // Se um modelo foi selecionado, usar apenas suas features
-      const fieldsToSend = selectedModel ? MODELS_CONFIG[selectedModel].features : Object.keys(patientData);
-      
-      for (const key of fieldsToSend) {
-        const value = patientData[key];
+      for (const [key, value] of Object.entries(patientData)) {
         if (value !== undefined && value !== null && value !== '') {
           if (typeof value === 'boolean') {
             processedData[key] = value ? 1 : 0;
@@ -88,17 +47,22 @@ export class ExplainabilityApi {
         }
       }
 
-      // Preparar payload no formato correto: dados dentro de "pacienteDados"
-      // IMPORTANTE: Não incluir campo 'id' - a API não espera esse campo
-      const payload: XaiResultadoRequest = {
-        pacienteDados: processedData
-      };
+      // Validações básicas
+      if (processedData.Idademeses && (processedData.Idademeses < 0 || processedData.Idademeses > 1200)) {
+        throw new Error('Idade deve estar entre 0 e 1200 meses');
+      }
+
+      if (processedData.peso && (processedData.peso <= 0 || processedData.peso > 200)) {
+        throw new Error('Peso deve estar entre 0.1 e 200 kg');
+      }
+
+      // Preparar payload no formato correto: dados diretos (sem wrapper)
+      // A API agora detecta automaticamente o melhor modelo
+      const payload: XaiResultadoRequest = processedData;
 
       // Log para debug
-      console.log('🔍 [DEBUG] Selected model:', selectedModel);
-      console.log('🔍 [DEBUG] Fields to send for model:', fieldsToSend);
-      console.log('🔍 [DEBUG] Processed data:', processedData);
-      console.log('🔍 [DEBUG] Sending payload:', JSON.stringify(payload, null, 2));
+      console.log('🔍 [DEBUG] Sending payload (auto-detection):', JSON.stringify(payload, null, 2));
+      console.log('🔍 [DEBUG] Available fields:', Object.keys(processedData));
 
       // Fazer chamada para API
       const response = await KalaCalAPI.getXaiResultado(payload);
@@ -110,11 +74,11 @@ export class ExplainabilityApi {
 
       console.log('✅ [DEBUG] API Success Response:', response.data);
 
-      // Adicionar informações do modelo na resposta
+      // A resposta agora inclui informações sobre qual modelo foi usado
       const enhancedResult = {
         ...response.data!,
-        model_used: selectedModel || 'auto',
-        model_config: selectedModel ? MODELS_CONFIG[selectedModel] : null
+        model_used: 'auto-detected', // Modelo foi detectado automaticamente
+        model_config: null // Não temos configuração específica pois foi auto-detectado
       };
 
       return {
@@ -127,8 +91,8 @@ export class ExplainabilityApi {
       
       return {
         success: false,
-        error: this.handleExplanationError(error, selectedModel),
-        model: selectedModel
+        error: this.handleExplanationError(error),
+        model: 'auto-detected'
       };
     }
   }

@@ -26,7 +26,7 @@ const EnhancedExplanationCard: React.FC<EnhancedExplanationCardProps> = ({
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.loadingContainer, className && { className }]}>
+      <View style={[styles.container, styles.loadingContainer]}>
         <LoadingState modelConfig={modelConfig} />
       </View>
     );
@@ -34,7 +34,7 @@ const EnhancedExplanationCard: React.FC<EnhancedExplanationCardProps> = ({
 
   if (error) {
     return (
-      <View style={[styles.container, styles.errorContainer, className && { className }]}>
+      <View style={[styles.container, styles.errorContainer]}>
         <ErrorState error={error} modelConfig={modelConfig} />
       </View>
     );
@@ -42,14 +42,14 @@ const EnhancedExplanationCard: React.FC<EnhancedExplanationCardProps> = ({
 
   if (!explanation || !selectedModel) {
     return (
-      <View style={[styles.container, styles.emptyContainer, className && { className }]}>
+      <View style={[styles.container, styles.emptyContainer]}>
         <EmptyState />
       </View>
     );
   }
 
   return (
-    <ScrollView style={[styles.container, className && { className }]}>
+    <ScrollView style={[styles.container]}>
       <View style={[styles.explanationCard, { borderLeftColor: modelConfig!.color }]}>
         <ExplanationHeader 
           modelConfig={modelConfig!} 
@@ -174,9 +174,9 @@ const ExplanationHeader: React.FC<{
 const PredictionValue: React.FC<{ value: number; error: number }> = ({ value, error }) => (
   <View style={styles.predictionContainer}>
     <View style={styles.predictionCard}>
-      <Text size="xs" style={styles.predictionLabel}>Valor Predito</Text>
+      <Text size="xs" style={styles.predictionLabel}>Risco de Morte</Text>
       <Text size="xl" bold style={styles.predictionValue}>
-        {value.toFixed(2)}
+        {value.toFixed(1)}%
       </Text>
     </View>
     <View style={styles.predictionCard}>
@@ -274,9 +274,9 @@ const ModelPerformanceSection: React.FC<{
         </Text>
       </View>
       <View style={styles.performanceStat}>
-        <Text size="xs" style={styles.performanceLabel}>Predição:</Text>
+        <Text size="xs" style={styles.performanceLabel}>Risco:</Text>
         <Text size="sm" bold style={[styles.performanceValue, { color: modelConfig.color }]}>
-          {explanation.valor_predito.toFixed(2)}
+          {explanation.valor_predito.toFixed(2)}%
         </Text>
       </View>
     </View>

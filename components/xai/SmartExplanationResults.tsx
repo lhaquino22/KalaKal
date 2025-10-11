@@ -19,7 +19,7 @@ const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({
 }) => {
   if (loading) {
     return (
-      <View style={[styles.container, styles.loadingContainer, className && { className }]}>
+      <View style={[styles.container, styles.loadingContainer]}>
         <LoadingState />
       </View>
     );
@@ -27,20 +27,19 @@ const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({
 
   if (!result) {
     return (
-      <View style={[styles.container, styles.emptyContainer, className && { className }]}>
+      <View style={[styles.container, styles.emptyContainer]}>
         <EmptyState />
       </View>
     );
   }
 
   return (
-    <ScrollView style={[styles.container, className && { className }]}>
+    <ScrollView style={[styles.container]}>
       <View style={styles.resultsCard}>
         <ResultsHeader result={result} />
         <PredictionSection result={result} />
         <ExplanationSection result={result} />
         <VariablesSection result={result} patientData={patientData} />
-        <MetadataSection result={result} />
       </View>
     </ScrollView>
   );
@@ -120,9 +119,9 @@ const PredictionSection: React.FC<{ result: XaiResultadoResponse }> = ({ result 
     
     <View style={styles.predictionContainer}>
       <View style={styles.predictionCard}>
-        <Text size="xs" style={styles.predictionLabel}>Valor Predito</Text>
+        <Text size="xs" style={styles.predictionLabel}>Risco de Morte</Text>
         <Text size="2xl" bold style={styles.predictionValue}>
-          {result.valor_predito.toFixed(2)}
+          {result.valor_predito.toFixed(1)}%
         </Text>
       </View>
       <View style={styles.predictionCard}>
@@ -191,48 +190,6 @@ const VariablesSection: React.FC<{
           </View>
         </View>
       ))}
-    </View>
-  </View>
-);
-
-const MetadataSection: React.FC<{ result: XaiResultadoResponse }> = ({ result }) => (
-  <View style={styles.section}>
-    <Text size="md" bold style={styles.sectionTitle}>
-      ℹ️ Informações do Processamento
-    </Text>
-    
-    <View style={styles.metadataGrid}>
-      <View style={styles.metadataItem}>
-        <Text size="xs" style={styles.metadataLabel}>Variáveis Utilizadas</Text>
-        <Text size="sm" bold style={styles.metadataValue}>
-          {result.variaveis.length}
-        </Text>
-      </View>
-      
-      {result.total_features && (
-        <View style={styles.metadataItem}>
-          <Text size="xs" style={styles.metadataLabel}>Total de Features</Text>
-          <Text size="sm" bold style={styles.metadataValue}>
-            {result.total_features}
-          </Text>
-        </View>
-      )}
-      
-      {result.abordagem && (
-        <View style={styles.metadataItem}>
-          <Text size="xs" style={styles.metadataLabel}>Abordagem</Text>
-          <Text size="sm" bold style={styles.metadataValue}>
-            {result.abordagem}
-          </Text>
-        </View>
-      )}
-      
-      <View style={styles.metadataItem}>
-        <Text size="xs" style={styles.metadataLabel}>Modelo</Text>
-        <Text size="sm" bold style={styles.metadataValue}>
-          Auto-detectado
-        </Text>
-      </View>
     </View>
   </View>
 );
@@ -430,25 +387,6 @@ const styles = StyleSheet.create({
   variableValue: {
     color: '#6b7280',
     fontWeight: '500',
-  },
-  metadataGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 16,
-  },
-  metadataItem: {
-    backgroundColor: '#f8fafc',
-    padding: 12,
-    borderRadius: 8,
-    alignItems: 'center',
-    minWidth: '45%',
-  },
-  metadataLabel: {
-    color: '#6b7280',
-    marginBottom: 4,
-  },
-  metadataValue: {
-    color: '#1f2937',
   },
 });
 

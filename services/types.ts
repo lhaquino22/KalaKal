@@ -80,9 +80,8 @@ export interface XaiResultadoResponse {
 }
 
 export type XaiResultadoRequest =
-    | { [key: string]: any }
     | { pacienteDados: { [key: string]: any } }
-    | { paciente_dados: { [key: string]: any } };
+    | { [key: string]: any };
 
 export interface XaiHealthcheck {
     status: string;

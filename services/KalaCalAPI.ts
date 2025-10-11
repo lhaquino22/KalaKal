@@ -13,8 +13,8 @@ interface ApiConfig {
 
 const API_CONFIG: ApiConfig = {
     baseURL: env.EXPO_PUBLIC_API_URL,
-    apiKey: env.EXPO_PUBLIC_API_KEY,
-    timeout: 10000
+    apiKey: 'web_kala_2024_secure_key_456', // API Key correta conforme análise do backend
+    timeout: 60000 // Aumentar timeout para XAI (60 segundos)
 };
 
 const apiClient = axios.create({
@@ -32,16 +32,38 @@ apiClient.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
+        
+        // Debug: Log headers sendo enviados
+        console.log('🔍 [DEBUG] Request Headers:', {
+            'Authorization': config.headers.Authorization,
+            'X-API-Key': config.headers['X-API-Key'],
+            'Content-Type': config.headers['Content-Type']
+        });
+        console.log('🔍 [DEBUG] Request URL:', config.url);
+        console.log('🔍 [DEBUG] Request Method:', config.method);
+        if (config.data) {
+            console.log('🔍 [DEBUG] Request Data:', JSON.stringify(config.data, null, 2));
+        }
+        
         return config;
     },
     (error: AxiosError) => {
+        console.error('❌ [DEBUG] Request interceptor error:', error);
         return Promise.reject(error);
     }
 );
 
 apiClient.interceptors.response.use(
-    (response: AxiosResponse) => response,
+    (response: AxiosResponse) => {
+        console.log('✅ [DEBUG] Response Status:', response.status);
+        console.log('✅ [DEBUG] Response Data:', response.data);
+        return response;
+    },
     async (error: AxiosError) => {
+        console.error('❌ [DEBUG] Response Error Status:', error.response?.status);
+        console.error('❌ [DEBUG] Response Error Data:', error.response?.data);
+        console.error('❌ [DEBUG] Response Error Message:', error.message);
+        
         const originalRequest = error.config as any;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -57,6 +79,7 @@ apiClient.interceptors.response.use(
                     return apiClient(originalRequest);
                 }
             } catch (refreshError: unknown) {
+                console.error('❌ [DEBUG] Token refresh failed:', refreshError);
                 await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
             }
         }

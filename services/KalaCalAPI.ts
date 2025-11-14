@@ -13,7 +13,7 @@ interface ApiConfig {
 
 const API_CONFIG: ApiConfig = {
     baseURL: env.EXPO_PUBLIC_API_URL,
-    apiKey: 'web_kala_2024_secure_key_456', // API Key correta conforme análise do backend
+    apiKey: env.EXPO_PUBLIC_API_KEY, // Usar API Key de produção das variáveis de ambiente
     timeout: 60000 // Aumentar timeout para XAI (60 segundos)
 };
 

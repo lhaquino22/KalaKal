@@ -7,6 +7,7 @@
     "build-preview": "eas build --platform android --profile preview --local --output ./builds/preview/kalacal-preview.apk",
     "build-dev": "eas build --platform android --profile development --local --output ./builds/dev/kalacal-dev.apk",
     "build-production": "eas build --platform android --profile production --local --output ./builds/production/kalacal-production.apk",
+    "build-production-aab": "eas build --platform android --profile production-aab",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo run:android",
     "ios": "expo run:ios",

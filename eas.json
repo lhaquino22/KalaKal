@@ -24,6 +24,16 @@
         "EXPO_PUBLIC_API_URL": "https://kalacal-api-102830866843.us-central1.run.app",
         "EXPO_PUBLIC_API_KEY": "mobile_kala_prod_f04e32235be9fc75e47bc1ba47b576c2"
       }
+    },
+    "production-aab": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://kalacal-api-102830866843.us-central1.run.app",
+        "EXPO_PUBLIC_API_KEY": "mobile_kala_prod_f04e32235be9fc75e47bc1ba47b576c2"
+      }
     }
   },
   "submit": {

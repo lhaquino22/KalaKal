@@ -3,7 +3,7 @@ import { Ocorrencia, OcorrenciaForm } from '@/components/ocorrencias/types';
 import env from '@/config/env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { ApiInfo, ApiResponse, AuthResponse, LoginCredentials, MetricasSistema, RefreshTokenResponse, RegisterData, User, XaiHealthcheck, XaiPaciente, XaiResultadoRequest, XaiResultadoResponse } from './types';
+import { AccountRecoveryPayload, ApiInfo, ApiResponse, AuthResponse, DeleteAccountPayload, ForgotPasswordPayload, LoginCredentials, MetricasSistema, RefreshTokenResponse, RegisterData, ResetPasswordPayload, User, XaiHealthcheck, XaiPaciente, XaiResultadoRequest, XaiResultadoResponse } from './types';
 
 interface ApiConfig {
     baseURL: string;
@@ -214,6 +214,45 @@ class KalaCalAPI {
                     'X-API-Key': API_CONFIG.apiKey
                 }
             }
+        );
+    }
+
+    static async deleteAccount(payload: DeleteAccountPayload): Promise<ApiResponse<{ message?: string }>> {
+        const token = await AsyncStorage.getItem('accessToken');
+
+        if (!token) {
+            return {
+                success: false,
+                error: 'Sessão expirada. Faça login novamente para excluir a conta.'
+            };
+        }
+
+        return this.makeRequest(() =>
+            apiClient.post('/api/auth/account/delete/', payload, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
+        );
+    }
+
+    static async requestAccountRecovery(payload: AccountRecoveryPayload): Promise<ApiResponse<{ message?: string }>> {
+        return this.makeRequest(() =>
+            apiClient.post('/api/auth/account/recover/', payload)
+        );
+    }
+
+    // ===== RECUPERAÇÃO DE SENHA =====
+
+    static async forgotPassword(payload: ForgotPasswordPayload): Promise<ApiResponse<{ message?: string }>> {
+        return this.makeRequest(() =>
+            apiClient.post('/api/auth/account/recover/', payload)
+        );
+    }
+
+    static async resetPassword(payload: ResetPasswordPayload): Promise<ApiResponse<{ message?: string }>> {
+        return this.makeRequest(() =>
+            apiClient.post('/api/auth/account/reset-password/', payload)
         );
     }
 

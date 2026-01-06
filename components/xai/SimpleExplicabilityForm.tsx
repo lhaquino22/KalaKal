@@ -3,11 +3,11 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-
 import { Text } from '@/components/ui/text';
 import { Input, InputField } from '@/components/ui/input';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import { validatePatientData } from '@/utils/validationUtils';
 import { colors } from '@/commons';
+import dayjs from '@/lib/dayjs';
 
 interface SimpleFormData {
-  Idademeses: number | '';
+  dataNascimento: string;
   edema: boolean | null;
   peso: number | '';
   aids?: boolean | null;
@@ -26,12 +26,41 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
   className = '' 
 }) => {
   const [formData, setFormData] = useState<SimpleFormData>({
-    Idademeses: '',
+    dataNascimento: '',
     edema: null,
     peso: '',
     aids: null,
     plaque: ''
   });
+
+  // Função para formatar data no formato DD/MM/YYYY enquanto o usuário digita
+  const formatDateInput = (text: string): string => {
+    const numbers = text.replace(/\D/g, '');
+    
+    if (numbers.length <= 2) {
+      return numbers;
+    } else if (numbers.length <= 4) {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+    } else {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
+    }
+  };
+
+  // Função para calcular idade em meses a partir da data de nascimento
+  const calculateAgeInMonths = (birthDate: string): number | null => {
+    if (!birthDate || birthDate.length !== 10) return null;
+    
+    const [day, month, year] = birthDate.split('/').map(Number);
+    if (!day || !month || !year) return null;
+    
+    const birth = dayjs(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
+    if (!birth.isValid()) return null;
+    
+    const today = dayjs();
+    const months = today.diff(birth, 'month');
+    
+    return months >= 0 ? months : null;
+  };
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showNotification, setShowNotification] = useState(false);
@@ -39,7 +68,8 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
 
   // Detectar modelo baseado nos campos preenchidos
   const getDetectedModel = (): { model: string; confidence: string } => {
-    const hasBasicFields = formData.Idademeses && formData.peso && formData.edema !== null;
+    const ageInMonths = calculateAgeInMonths(formData.dataNascimento);
+    const hasBasicFields = ageInMonths !== null && ageInMonths > 0 && formData.peso && formData.edema !== null;
     const hasAidsInfo = formData.aids !== null; // Tem informação sobre AIDS (sim ou não)
     const hasPlaque = formData.plaque && formData.plaque > 0;
 
@@ -104,10 +134,15 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.Idademeses || formData.Idademeses <= 0) {
-      newErrors.Idademeses = 'Idade é obrigatória';
-    } else if (formData.Idademeses > 1200) {
-      newErrors.Idademeses = 'Idade deve ser menor que 1200 meses';
+    const ageInMonths = calculateAgeInMonths(formData.dataNascimento);
+    if (!formData.dataNascimento || formData.dataNascimento.length !== 10) {
+      newErrors.dataNascimento = 'Data de nascimento é obrigatória (DD/MM/AAAA)';
+    } else if (ageInMonths === null) {
+      newErrors.dataNascimento = 'Data de nascimento inválida';
+    } else if (ageInMonths <= 0) {
+      newErrors.dataNascimento = 'A data de nascimento deve ser no passado';
+    } else if (ageInMonths > 1200) {
+      newErrors.dataNascimento = 'Idade deve ser menor que 100 anos';
     }
 
     if (!formData.peso || formData.peso <= 0) {
@@ -131,8 +166,11 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
   const handleSubmit = () => {
     if (!validateForm()) return;
 
+    // Calcular idade em meses a partir da data de nascimento
+    const ageInMonths = calculateAgeInMonths(formData.dataNascimento);
+
     const submitData: Record<string, any> = {
-      Idademeses: Number(formData.Idademeses),
+      Idademeses: ageInMonths,
       edema: formData.edema,
       peso: Number(formData.peso)
     };
@@ -150,7 +188,10 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
   };
 
   const isFormValid = (): boolean => {
-    return !!(formData.Idademeses && formData.peso && formData.edema !== null);
+    const ageInMonths = calculateAgeInMonths(formData.dataNascimento);
+    return !!(formData.dataNascimento && formData.dataNascimento.length === 10 && 
+              ageInMonths !== null && ageInMonths > 0 &&
+              formData.peso && formData.edema !== null);
   };
 
   return (
@@ -182,21 +223,27 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
 
         {/* Lista de Campos Simples */}
         <View style={styles.fieldsList}>
-          {/* Idade */}
+          {/* Data de Nascimento */}
           <View style={styles.fieldItem}>
             <Text size="sm" style={styles.fieldLabel}>
-              Idade (meses) <Text style={styles.required}>*</Text>
+              Data de Nascimento <Text style={styles.required}>*</Text>
             </Text>
-            <Input style={[styles.input, errors.Idademeses && styles.inputError]}>
+            <Input style={[styles.input, errors.dataNascimento && styles.inputError]}>
               <InputField
-                value={formData.Idademeses?.toString() || ''}
-                onChangeText={(text) => handleFieldChange('Idademeses', text === '' ? '' : Number(text))}
-                placeholder="Ex: 240"
+                value={formData.dataNascimento}
+                onChangeText={(text) => handleFieldChange('dataNascimento', formatDateInput(text))}
+                placeholder="DD/MM/AAAA"
                 keyboardType="numeric"
+                maxLength={10}
               />
             </Input>
-            {errors.Idademeses && (
-              <Text size="xs" style={styles.errorText}>{errors.Idademeses}</Text>
+            {errors.dataNascimento && (
+              <Text size="xs" style={styles.errorText}>{errors.dataNascimento}</Text>
+            )}
+            {formData.dataNascimento.length === 10 && calculateAgeInMonths(formData.dataNascimento) !== null && (
+              <Text size="xs" style={styles.fieldHelperSuccess}>
+                Idade: {calculateAgeInMonths(formData.dataNascimento)} meses ({Math.floor((calculateAgeInMonths(formData.dataNascimento) || 0) / 12)} anos e {(calculateAgeInMonths(formData.dataNascimento) || 0) % 12} meses)
+              </Text>
             )}
           </View>
 
@@ -428,6 +475,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginBottom: 8,
     fontStyle: 'italic',
+  },
+  fieldHelperSuccess: {
+    color: '#16a34a',
+    fontSize: 12,
+    fontWeight: '500',
   },
   required: {
     color: colors.mainColor,

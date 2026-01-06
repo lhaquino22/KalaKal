@@ -7,7 +7,11 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   ScrollView,
+  Switch,
   Text,
   TextInput,
   TouchableOpacity,
@@ -28,7 +32,14 @@ const profileSchema = z.object({
 type ProfileData = z.infer<typeof profileSchema>;
 
 export default function ProfileScreen() {
-  const { user, loading, updateProfile, refreshUserData, logout } = useAuth();
+  const {
+    user,
+    loading,
+    updateProfile,
+    refreshUserData,
+    logout,
+    deleteAccount,
+  } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<ProfileData>({
@@ -38,15 +49,31 @@ export default function ProfileScreen() {
     email: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteDetails, setDeleteDetails] = useState("");
+  const [deleteConsent, setDeleteConsent] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
 
   useEffect(() => {
     refreshUserData();
+  }, []);
+
+  useEffect(() => {
     if (user) {
       setFormData({
         username: user.username || "",
         first_name: user.first_name || "",
         last_name: user.last_name || "",
         email: user.email || "",
+      });
+    } else {
+      setFormData({
+        username: "",
+        first_name: "",
+        last_name: "",
+        email: "",
       });
     }
   }, [user]);
@@ -133,6 +160,65 @@ export default function ProfileScreen() {
         },
       },
     ]);
+  };
+
+  const resetDeleteState = () => {
+    setDeletePassword("");
+    setDeleteReason("");
+    setDeleteDetails("");
+    setDeleteConsent(false);
+  };
+
+  const handleConfirmDeleteAccount = async () => {
+    if (!deletePassword.trim()) {
+      Alert.alert("Campo obrigatório", "Informe sua senha para confirmar.");
+      return;
+    }
+
+    if (!deleteConsent) {
+      Alert.alert(
+        "Confirmação necessária",
+        "Você precisa confirmar que entende que a exclusão é permanente."
+      );
+      return;
+    }
+
+    try {
+      setIsDeletingAccount(true);
+      const payload = {
+        password: deletePassword.trim(),
+        reason: deleteReason.trim() || undefined,
+        feedback: deleteDetails.trim() || undefined,
+      };
+      const result = await deleteAccount(payload);
+
+      if (result.success) {
+        setIsDeleteModalVisible(false);
+        resetDeleteState();
+        Alert.alert(
+          "Conta excluída",
+          "Sua solicitação foi concluída e seus dados foram removidos. Você será redirecionado para a tela inicial.",
+          [
+            {
+              text: "OK",
+              onPress: () => router.replace("/auth/login"),
+            },
+          ]
+        );
+      } else {
+        Alert.alert(
+          "Não foi possível excluir",
+          result.error || "Tente novamente em instantes."
+        );
+      }
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalVisible(false);
+    resetDeleteState();
   };
 
   if (loading) {
@@ -307,7 +393,135 @@ export default function ProfileScreen() {
           <Ionicons name="log-out-outline" size={18} color="#FF3B30" />
           <Text className="text-red-500 font-semibold ml-2">Sair da Conta</Text>
         </TouchableOpacity>
+
+        <View className="bg-white rounded-xl shadow-sm p-4 border border-red-100">
+          <Text className="text-lg font-semibold text-gray-900">
+            Gerenciamento da Conta
+          </Text>
+          <Text className="text-sm text-gray-600 mt-1">
+            Você pode solicitar a exclusão permanente da sua conta e dados
+            diretamente pelo app.
+          </Text>
+          <TouchableOpacity
+            className="mt-4 bg-red-50 border border-red-200 rounded-xl py-3 px-6 flex-row items-center justify-center"
+            onPress={() => setIsDeleteModalVisible(true)}
+          >
+            <Ionicons name="trash-outline" size={18} color="#C53030" />
+            <Text className="text-red-600 font-semibold ml-2">
+              Excluir minha conta
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      <Modal
+        visible={isDeleteModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={handleCloseDeleteModal}
+      >
+        <KeyboardAvoidingView
+          className="flex-1 justify-end"
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+          <View className="flex-1 bg-black/60" />
+          <View className="bg-white rounded-t-[32px] px-6 pt-6 pb-10">
+            <View className="flex-row justify-between items-center mb-4">
+              <View>
+                <Text className="text-xl font-bold text-gray-900">
+                  Excluir conta
+                </Text>
+                <Text className="text-sm text-gray-600">
+                  Esta ação é permanente e remove todos os seus dados.
+                </Text>
+              </View>
+              <TouchableOpacity onPress={handleCloseDeleteModal}>
+                <Ionicons name="close" size={24} color="#6B7280" />
+              </TouchableOpacity>
+            </View>
+
+            <View className="space-y-4">
+              <View>
+                <Text className="text-sm text-gray-500 mb-1">Motivo</Text>
+                <TextInput
+                  className="border border-gray-200 rounded-xl px-4 py-3 bg-gray-50"
+                  placeholder="Por que você deseja excluir?"
+                  value={deleteReason}
+                  onChangeText={setDeleteReason}
+                />
+              </View>
+              <View>
+                <Text className="text-sm text-gray-500 mb-1">
+                  Comentários adicionais (opcional)
+                </Text>
+                <TextInput
+                  className="border border-gray-200 rounded-xl px-4 py-3 bg-gray-50"
+                  placeholder="Conte-nos se podemos melhorar algo"
+                  value={deleteDetails}
+                  onChangeText={setDeleteDetails}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+              </View>
+              <View>
+                <Text className="text-sm text-gray-500 mb-1">Senha atual</Text>
+                <TextInput
+                  className="border border-gray-200 rounded-xl px-4 py-3 bg-gray-50"
+                  placeholder="Digite sua senha para confirmar"
+                  secureTextEntry
+                  value={deletePassword}
+                  onChangeText={setDeletePassword}
+                />
+              </View>
+              <View className="flex-row items-center justify-between bg-gray-50 rounded-2xl px-4 py-3">
+                <View className="flex-1 pr-3">
+                  <Text className="text-sm font-semibold text-gray-800">
+                    Confirmo que desejo excluir minha conta
+                  </Text>
+                  <Text className="text-xs text-gray-500 mt-1">
+                    A exclusão é permanente e pode levar até 30 dias para ser
+                    concluída.
+                  </Text>
+                </View>
+                <Switch
+                  value={deleteConsent}
+                  onValueChange={setDeleteConsent}
+                  trackColor={{ false: "#E5E7EB", true: "#FCA5A5" }}
+                  thumbColor={deleteConsent ? "#DC2626" : "#9CA3AF"}
+                />
+              </View>
+            </View>
+
+            <View className="mt-6 space-y-3">
+              <TouchableOpacity
+                className={`py-4 rounded-2xl ${
+                  isDeletingAccount ? "bg-red-300" : "bg-red-600"
+                }`}
+                onPress={handleConfirmDeleteAccount}
+                disabled={isDeletingAccount}
+              >
+                {isDeletingAccount ? (
+                  <ActivityIndicator color="#fff" />
+                ) : (
+                  <Text className="text-center text-white font-semibold">
+                    Confirmar exclusão permanente
+                  </Text>
+                )}
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="py-4 rounded-2xl bg-gray-100"
+                onPress={handleCloseDeleteModal}
+                disabled={isDeletingAccount}
+              >
+                <Text className="text-center text-gray-800 font-semibold">
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </ScrollView>
   );
 }

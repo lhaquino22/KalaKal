@@ -9,6 +9,7 @@ import {
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
+  Text,
   StatusBar,
   TextInput,
   TouchableOpacity,
@@ -113,6 +114,35 @@ export default function EntrarScreen() {
                       source={require("@/assets/images/cadastro.png")}
                       style={estilo.buttons}
                     />
+                  </TouchableOpacity>
+                </Link>
+              </View>
+              <View style={{ marginTop: 16, gap: 12 }}>
+                <Link href="/auth/forgot-password" asChild>
+                  <TouchableOpacity>
+                    <Text
+                      style={{
+                        color: "#FFFFFF",
+                        textAlign: "center",
+                        textDecorationLine: "underline",
+                        fontWeight: "600",
+                      }}
+                    >
+                      Esqueci minha senha
+                    </Text>
+                  </TouchableOpacity>
+                </Link>
+                <Link href="/auth/recover-account" asChild>
+                  <TouchableOpacity>
+                    <Text
+                      style={{
+                        color: "rgba(255,255,255,0.7)",
+                        textAlign: "center",
+                        fontSize: 13,
+                      }}
+                    >
+                      Reativar conta desativada
+                    </Text>
                   </TouchableOpacity>
                 </Link>
               </View>

@@ -18,6 +18,29 @@ export interface RegisterData {
     last_name?: string;
 }
 
+export interface DeleteAccountPayload {
+    password: string;
+    reason?: string;
+    feedback?: string;
+}
+
+export interface AccountRecoveryPayload {
+    email: string;
+    reason?: string;
+    details?: string;
+}
+
+export interface ForgotPasswordPayload {
+    email: string;
+}
+
+export interface ResetPasswordPayload {
+    token: string;
+    uid: string;
+    new_password: string;
+    new_password_confirm: string;
+}
+
 export interface User {
     id: number;
     username: string;

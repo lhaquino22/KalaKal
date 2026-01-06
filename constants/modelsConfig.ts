@@ -46,7 +46,7 @@ export const MODELS_CONFIG: Record<string, ModelConfig> = {
 
 export interface FieldConfig {
   label: string;
-  type: 'number' | 'boolean' | 'string';
+  type: 'number' | 'boolean' | 'string' | 'birthdate';
   min?: number;
   max?: number;
   step?: number;
@@ -57,14 +57,14 @@ export interface FieldConfig {
 
 export const FIELD_CONFIG: Record<string, FieldConfig> = {
   Idademeses: {
-    label: 'Idade (meses)',
-    type: 'number',
+    label: 'Data de Nascimento',
+    type: 'birthdate',
     min: 0,
     max: 1200,
     step: 1,
     required: true,
-    placeholder: 'Ex: 240 (20 anos)',
-    helper: 'Idade do paciente em meses'
+    placeholder: 'DD/MM/AAAA',
+    helper: 'Data de nascimento do paciente'
   },
   edema: {
     label: 'Edema',

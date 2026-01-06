@@ -1,8 +1,25 @@
 import { FIELD_CONFIG } from '@/constants/modelsConfig';
+import dayjs from '@/lib/dayjs';
 
 export interface ValidationError {
   [field: string]: string;
 }
+
+// Função para calcular idade em meses a partir da data de nascimento
+const calculateAgeInMonths = (birthDate: string): number | null => {
+  if (!birthDate || birthDate.length !== 10) return null;
+  
+  const [day, month, year] = birthDate.split('/').map(Number);
+  if (!day || !month || !year) return null;
+  
+  const birth = dayjs(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
+  if (!birth.isValid()) return null;
+  
+  const today = dayjs();
+  const months = today.diff(birth, 'month');
+  
+  return months >= 0 ? months : null;
+};
 
 export const validatePatientData = (
   data: Record<string, any>,
@@ -45,11 +62,36 @@ export const validatePatientData = (
         errors[field] = `${fieldConfig.label} deve ser verdadeiro ou falso`;
         return;
       }
+
+      if (fieldConfig.type === 'birthdate') {
+        if (typeof value !== 'string' || value.length !== 10) {
+          errors[field] = `${fieldConfig.label} deve estar no formato DD/MM/AAAA`;
+          return;
+        }
+        
+        const ageInMonths = calculateAgeInMonths(value);
+        if (ageInMonths === null) {
+          errors[field] = `${fieldConfig.label} inválida`;
+          return;
+        }
+        
+        if (ageInMonths <= 0) {
+          errors[field] = `${fieldConfig.label} deve ser no passado`;
+          return;
+        }
+        
+        if (ageInMonths > 1200) {
+          errors[field] = 'Idade deve ser menor que 100 anos';
+          return;
+        }
+      }
     }
   });
 
   // Validações específicas de negócio
-  if (data.Idademeses && !errors.Idademeses) {
+  if (data.Idademeses && typeof data.Idademeses === 'string' && data.Idademeses.includes('/')) {
+    // É uma data de nascimento, já validada acima
+  } else if (data.Idademeses && !errors.Idademeses) {
     const idade = Number(data.Idademeses);
     if (idade < 0 || idade > 1200) {
       errors.Idademeses = 'Idade deve estar entre 0 e 1200 meses';
@@ -86,6 +128,11 @@ export const formatFieldValue = (field: string, value: any): any => {
     return Boolean(value);
   }
 
+  if (fieldConfig.type === 'birthdate' && typeof value === 'string') {
+    // Retorna idade em meses para envio à API
+    return calculateAgeInMonths(value);
+  }
+
   return value;
 };
 
@@ -104,6 +151,16 @@ export const getFieldDisplayValue = (field: string, value: any): string => {
       return numValue.toFixed(1);
     }
     return String(numValue);
+  }
+
+  if (fieldConfig.type === 'birthdate' && typeof value === 'string' && value.length === 10) {
+    const ageInMonths = calculateAgeInMonths(value);
+    if (ageInMonths !== null) {
+      const years = Math.floor(ageInMonths / 12);
+      const months = ageInMonths % 12;
+      return `${value} (${years} anos e ${months} meses)`;
+    }
+    return value;
   }
 
   return String(value || '');

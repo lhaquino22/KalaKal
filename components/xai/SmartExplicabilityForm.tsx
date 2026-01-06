@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Input, InputField } from '@/components/ui/input';
 import LoadingSpinner from '@/components/ui/loading-spinner';
-import { validatePatientData } from '@/utils/validationUtils';
+import dayjs from '@/lib/dayjs';
 
 interface ExplicabilityFormData {
   // Campos básicos sempre presentes
-  Idademeses: number | '';
+  dataNascimento: string;
   edema: boolean;
   peso: number | '';
   
@@ -33,10 +33,41 @@ const SmartExplicabilityForm: React.FC<SmartExplicabilityFormProps> = ({
   className = '' 
 }) => {
   const [formData, setFormData] = useState<ExplicabilityFormData>({
-    Idademeses: '',
+    dataNascimento: '',
     edema: false,
     peso: ''
   });
+
+  // Função para formatar data no formato DD/MM/YYYY enquanto o usuário digita
+  const formatDateInput = (text: string): string => {
+    // Remove tudo que não é número
+    const numbers = text.replace(/\D/g, '');
+    
+    // Aplica a máscara DD/MM/YYYY
+    if (numbers.length <= 2) {
+      return numbers;
+    } else if (numbers.length <= 4) {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+    } else {
+      return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
+    }
+  };
+
+  // Função para calcular idade em meses a partir da data de nascimento
+  const calculateAgeInMonths = (birthDate: string): number | null => {
+    if (!birthDate || birthDate.length !== 10) return null;
+    
+    const [day, month, year] = birthDate.split('/').map(Number);
+    if (!day || !month || !year) return null;
+    
+    const birth = dayjs(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
+    if (!birth.isValid()) return null;
+    
+    const today = dayjs();
+    const months = today.diff(birth, 'month');
+    
+    return months >= 0 ? months : null;
+  };
 
   const [optionalFields, setOptionalFields] = useState<OptionalFields>({
     aids: false,
@@ -47,7 +78,7 @@ const SmartExplicabilityForm: React.FC<SmartExplicabilityFormProps> = ({
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const getCurrentFields = (): string[] => {
-    const fields = ['Idademeses', 'edema', 'peso'];
+    const fields = ['dataNascimento', 'edema', 'peso'];
     
     if (optionalFields.aids) fields.push('aids');
     if (optionalFields.plaque) fields.push('plaque');
@@ -111,10 +142,15 @@ const SmartExplicabilityForm: React.FC<SmartExplicabilityFormProps> = ({
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    if (!formData.Idademeses || formData.Idademeses <= 0) {
-      newErrors.Idademeses = 'Idade em meses é obrigatória e deve ser maior que 0';
-    } else if (formData.Idademeses > 1200) {
-      newErrors.Idademeses = 'Idade deve ser menor que 1200 meses';
+    const ageInMonths = calculateAgeInMonths(formData.dataNascimento);
+    if (!formData.dataNascimento || formData.dataNascimento.length !== 10) {
+      newErrors.dataNascimento = 'Data de nascimento é obrigatória (DD/MM/AAAA)';
+    } else if (ageInMonths === null) {
+      newErrors.dataNascimento = 'Data de nascimento inválida';
+    } else if (ageInMonths <= 0) {
+      newErrors.dataNascimento = 'A data de nascimento deve ser no passado';
+    } else if (ageInMonths > 1200) {
+      newErrors.dataNascimento = 'Idade deve ser menor que 100 anos';
     }
 
     if (!formData.peso || formData.peso <= 0) {
@@ -134,9 +170,12 @@ const SmartExplicabilityForm: React.FC<SmartExplicabilityFormProps> = ({
   const handleSubmit = () => {
     if (!validateForm()) return;
 
-    // Preparar dados no formato esperado pela API
+    // Calcular idade em meses a partir da data de nascimento
+    const ageInMonths = calculateAgeInMonths(formData.dataNascimento);
+
+    // Preparar dados no formato esperado pela API (enviando Idademeses)
     const submitData: Record<string, any> = {
-      Idademeses: Number(formData.Idademeses),
+      Idademeses: ageInMonths,
       edema: formData.edema,
       peso: Number(formData.peso)
     };
@@ -154,7 +193,10 @@ const SmartExplicabilityForm: React.FC<SmartExplicabilityFormProps> = ({
   };
 
   const isFormValid = (): boolean => {
-    return !!(formData.Idademeses && formData.peso && 
+    const ageInMonths = calculateAgeInMonths(formData.dataNascimento);
+    return !!(formData.dataNascimento && formData.dataNascimento.length === 10 && 
+              ageInMonths !== null && ageInMonths > 0 &&
+              formData.peso && 
               (!optionalFields.plaque || formData.plaque));
   };
 
@@ -181,20 +223,26 @@ const SmartExplicabilityForm: React.FC<SmartExplicabilityFormProps> = ({
 
           <View style={styles.formGroup}>
             <Text size="sm" bold style={styles.fieldLabel}>
-              Idade (meses) <Text style={styles.required}>*</Text>
+              Data de Nascimento <Text style={styles.required}>*</Text>
             </Text>
-            <Input style={[styles.input, errors.Idademeses && styles.inputError]}>
+            <Input style={[styles.input, errors.dataNascimento && styles.inputError]}>
               <InputField
-                value={formData.Idademeses?.toString() || ''}
-                onChangeText={(text) => handleBasicFieldChange('Idademeses', text === '' ? '' : Number(text))}
-                placeholder="Ex: 240 (20 anos)"
+                value={formData.dataNascimento}
+                onChangeText={(text) => handleBasicFieldChange('dataNascimento', formatDateInput(text))}
+                placeholder="DD/MM/AAAA"
                 keyboardType="numeric"
+                maxLength={10}
               />
             </Input>
-            {errors.Idademeses && (
-              <Text size="xs" style={styles.errorMessage}>{errors.Idademeses}</Text>
+            {errors.dataNascimento && (
+              <Text size="xs" style={styles.errorMessage}>{errors.dataNascimento}</Text>
             )}
-            <Text size="xs" style={styles.fieldHelper}>Idade do paciente em meses</Text>
+            {formData.dataNascimento.length === 10 && calculateAgeInMonths(formData.dataNascimento) !== null && (
+              <Text size="xs" style={styles.fieldHelperSuccess}>
+                Idade: {calculateAgeInMonths(formData.dataNascimento)} meses ({Math.floor((calculateAgeInMonths(formData.dataNascimento) || 0) / 12)} anos e {(calculateAgeInMonths(formData.dataNascimento) || 0) % 12} meses)
+              </Text>
+            )}
+            <Text size="xs" style={styles.fieldHelper}>Data de nascimento do paciente</Text>
           </View>
 
           <View style={styles.formGroup}>
@@ -494,6 +542,11 @@ const styles = StyleSheet.create({
   fieldHelper: {
     color: '#6b7280',
     marginTop: 4,
+  },
+  fieldHelperSuccess: {
+    color: '#16a34a',
+    marginTop: 4,
+    fontWeight: '500',
   },
   errorMessage: {
     color: '#dc2626',

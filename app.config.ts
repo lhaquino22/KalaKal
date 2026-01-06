@@ -6,11 +6,12 @@ export default {
     version: "0.0.3-alpha",
     orientation: "portrait",
     icon: "./assets/myIcon.png",
-    scheme: "myapp",
+    scheme: "kalacal",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
       supportsTablet: true,
+      bundleIdentifier: "com.miaskaleb30.KalaCal",
     },
     android: {
       adaptiveIcon: {
@@ -18,6 +19,18 @@ export default {
         backgroundColor: "#ffffff",
       },
       package: "com.miaskaleb30.KalaCal",
+      intentFilters: [
+        {
+          action: "VIEW",
+          autoVerify: true,
+          data: [
+            {
+              scheme: "kalacal",
+            },
+          ],
+          category: ["BROWSABLE", "DEFAULT"],
+        },
+      ],
     },
     web: {
       bundler: "metro",

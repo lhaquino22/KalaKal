@@ -9,7 +9,7 @@ import React, {
   useState,
 } from "react";
 import KalaCalAPI from "../services/KalaCalAPI";
-import { LoginCredentials, RegisterData, User } from "../services/types";
+import { DeleteAccountPayload, LoginCredentials, RegisterData, User } from "../services/types";
 
 // ===== INTERFACES =====
 interface AuthContextType {
@@ -22,6 +22,7 @@ interface AuthContextType {
   updateProfile: (userData: Partial<User>) => Promise<AuthResult>;
   refreshUserData: () => Promise<AuthResult>;
   checkAuthStatus: () => Promise<void>;
+  deleteAccount: (payload: DeleteAccountPayload) => Promise<AuthResult>;
 }
 
 interface AuthResult {
@@ -166,6 +167,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const deleteAccount = async (
+    payload: DeleteAccountPayload
+  ): Promise<AuthResult> => {
+    try {
+      setLoading(true);
+      const result = await KalaCalAPI.deleteAccount(payload);
+
+      if (result.success) {
+        await KalaCalAPI.clearAuthData();
+        setUser(null);
+        setIsAuthenticated(false);
+        return { success: true, data: result.data };
+      }
+
+      return { success: false, error: result.error };
+    } catch (error) {
+      return { success: false, error: "Erro ao excluir conta" };
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const refreshUserData = async (): Promise<AuthResult> => {
     try {
       const result = await KalaCalAPI.getProfile();
@@ -191,6 +214,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateProfile,
     refreshUserData,
     checkAuthStatus,
+    deleteAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

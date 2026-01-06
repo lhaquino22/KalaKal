@@ -2,11 +2,39 @@ import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Input, InputField } from '@/components/ui/input';
-import { Button, ButtonText } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import LoadingSpinner from '@/components/ui/loading-spinner';
 import { MODELS_CONFIG, FIELD_CONFIG, ModelConfig, FieldConfig } from '@/constants/modelsConfig';
 import { validatePatientData } from '@/utils/validationUtils';
+import dayjs from '@/lib/dayjs';
+
+// Função para formatar data no formato DD/MM/YYYY enquanto o usuário digita
+const formatDateInput = (text: string): string => {
+  const numbers = text.replace(/\D/g, '');
+  
+  if (numbers.length <= 2) {
+    return numbers;
+  } else if (numbers.length <= 4) {
+    return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
+  } else {
+    return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
+  }
+};
+
+// Função para calcular idade em meses a partir da data de nascimento
+const calculateAgeInMonths = (birthDate: string): number | null => {
+  if (!birthDate || birthDate.length !== 10) return null;
+  
+  const [day, month, year] = birthDate.split('/').map(Number);
+  if (!day || !month || !year) return null;
+  
+  const birth = dayjs(`${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`);
+  if (!birth.isValid()) return null;
+  
+  const today = dayjs();
+  const months = today.diff(birth, 'month');
+  
+  return months >= 0 ? months : null;
+};
 
 interface DynamicPatientFormProps {
   selectedModel: string | null;
@@ -87,7 +115,14 @@ const DynamicPatientForm: React.FC<DynamicPatientFormProps> = ({
     // Enviar apenas campos necessários para o modelo (sem incluir 'id')
     const modelData: Record<string, any> = {};
     requiredFields.forEach(field => {
-      modelData[field] = formData[field];
+      const fieldConfig = FIELD_CONFIG[field];
+      // Se for campo de data de nascimento, converter para meses
+      if (fieldConfig.type === 'birthdate') {
+        const ageInMonths = calculateAgeInMonths(formData[field]);
+        modelData[field] = ageInMonths;
+      } else {
+        modelData[field] = formData[field];
+      }
     });
 
     onSubmit(modelData, selectedModel);
@@ -204,6 +239,8 @@ const FormField: React.FC<FormFieldProps> = ({
   error, 
   onChange 
 }) => {
+  const ageInMonths = fieldConfig.type === 'birthdate' ? calculateAgeInMonths(value || '') : null;
+
   return (
     <View style={styles.formGroup}>
       <Text size="sm" bold style={styles.fieldLabel}>
@@ -243,6 +280,23 @@ const FormField: React.FC<FormFieldProps> = ({
               ✗ Não
             </Text>
           </TouchableOpacity>
+        </View>
+      ) : fieldConfig.type === 'birthdate' ? (
+        <View>
+          <Input style={[styles.input, error && styles.inputError]}>
+            <InputField
+              value={value || ''}
+              onChangeText={(text) => onChange(formatDateInput(text))}
+              placeholder={fieldConfig.placeholder}
+              keyboardType="numeric"
+              maxLength={10}
+            />
+          </Input>
+          {value && value.length === 10 && ageInMonths !== null && (
+            <Text size="xs" style={styles.fieldHelperSuccess}>
+              Idade: {ageInMonths} meses ({Math.floor(ageInMonths / 12)} anos e {ageInMonths % 12} meses)
+            </Text>
+          )}
         </View>
       ) : (
         <Input style={[styles.input, error && styles.inputError]}>
@@ -395,6 +449,11 @@ const styles = StyleSheet.create({
   },
   fieldHelper: {
     color: '#6b7280',
+  },
+  fieldHelperSuccess: {
+    color: '#16a34a',
+    marginTop: 4,
+    fontWeight: '500',
   },
   errorMessage: {
     color: '#dc2626',

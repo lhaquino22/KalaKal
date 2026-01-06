@@ -59,9 +59,9 @@ const menu: Menu[][] = [
   ],
   [
     {
-      image: require("@/assets/images/kalacal-chart.png"),
-      icone: "brain",
-      titulo: "🧠 XAI - Explicabilidade",
+      image: require("@/assets/images/KalaCal.png"),
+      icone: "calculator",
+      titulo: "iKalaCal",
       cor: "seagreen",
       screen: "/xai" as any,
     },

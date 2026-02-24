@@ -1,4 +1,5 @@
 import { StyleSheet } from 'react-native';
+import { colors } from '@/commons';
 
 export default StyleSheet.create({
   container: {
@@ -27,7 +28,7 @@ export default StyleSheet.create({
     alignItems: 'center'
   },
   buttonText: {
-    color: '#144696',
+    color: colors.mainColor,
     fontSize: 16,
     fontWeight: 'bold'
   },

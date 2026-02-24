@@ -18,16 +18,18 @@ import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
   StatusBar,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors } from "@/commons";
 import { Text } from "../../components/ui/text";
 
 export default function KalaCal() {
+  const insets = useSafeAreaInsets();
   const [currentStep, setCurrentStep] = useState(0);
   const [formOptions, setFormOptions] = useState<KalacalOptions | null>(null);
   const [isFetching, setIsFetching] = useState(true);
@@ -159,7 +161,7 @@ export default function KalaCal() {
       <>
         <StatusBar barStyle="dark-content" />
         <View className="flex-1 justify-center items-center">
-          <ActivityIndicator size="large" color="orange" />
+          <ActivityIndicator size="large" color={colors.mainColor} />
           <Text className="mt-2">Carregando Kalacal...</Text>
         </View>
       </>
@@ -187,18 +189,12 @@ export default function KalaCal() {
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <View className="items-center mt-9">
-        <Image
-          source={require("@/assets/images/kalacal-banner.png")}
-          className="w-[100px] h-[43px]"
-        />
-      </View>
       <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
         className="flex-1"
         keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
       >
-        <View className="items-center px-4 border rounded-xl border-gray-200 bg-white mt-5 mx-4 mb-5 overflow-hidden">
+        <View className="items-center px-4 border rounded-xl border-gray-200 bg-white mt-5 mx-4 overflow-hidden" style={{ marginBottom: Math.max(insets.bottom, 5) }}>
           <ScrollView
             contentContainerStyle={{ flexGrow: 1 }}
             showsVerticalScrollIndicator={false}
@@ -211,7 +207,7 @@ export default function KalaCal() {
                   fontFamily: "Gidole",
                 }}
               >
-                PROGNOSTICATING KALA-AZAR
+                KalaCal
               </Text>
             </View>
 

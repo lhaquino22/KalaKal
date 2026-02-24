@@ -170,10 +170,10 @@ export default function PaginatedForm({
               />
             </View>
             <Text className="text-[#824417] text-sm flex-1 leading-4">
-              Warning: These estimations of death probability should NOT be
-              taken as the chance of death of any specific patient, but as an
-              indicator of the disease severity in other similar patient
-              populations at a different place or time.
+              Atenção: Estas estimativas de probabilidade de óbito NÃO devem
+              ser interpretadas como a chance de morte de um paciente
+              específico, mas como um indicador da gravidade da doença em
+              populações de pacientes semelhantes em outro local ou período.
             </Text>
           </View>
         </VStack>

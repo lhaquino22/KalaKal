@@ -17,6 +17,8 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors } from "@/commons";
 import * as z from "zod";
 
 // Schema de validação para os dados do perfil
@@ -32,6 +34,7 @@ const profileSchema = z.object({
 type ProfileData = z.infer<typeof profileSchema>;
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const {
     user,
     loading,
@@ -224,16 +227,16 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#144696" />
+        <ActivityIndicator size="large" color={colors.mainColor} />
       </View>
     );
   }
 
   return (
-    <ScrollView className="flex-1 bg-gray-50">
+    <ScrollView className="flex-1 bg-gray-50" contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
       <StatusBar style="dark" />
 
-      <View className="bg-white px-4 pt-12 pb-4 shadow-sm">
+      <View className="bg-white px-4 pt-4 pb-4 shadow-sm">
         {/* <View className="flex-row justify-between items-center">
           <Text className="text-2xl font-bold text-gray-800">Meu Perfil</Text>
           <TouchableOpacity

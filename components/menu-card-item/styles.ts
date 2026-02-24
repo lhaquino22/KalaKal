@@ -4,13 +4,14 @@ const estilo = StyleSheet.create({
     container: {
         borderWidth: 0.5,
         borderColor: 'ghostwhite',
-        padding: 22,
+        padding: 12,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        flex: 1,
     },
     image: {
-        width: '80%',
-        height: '70%',
+        width: '90%',
+        height: '90%',
         resizeMode: 'contain'
     },
     title: {

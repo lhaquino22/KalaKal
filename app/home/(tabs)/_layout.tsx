@@ -27,7 +27,8 @@ export default function TabLayout() {
         <Tabs.Screen
           name="conta/index"
           options={{
-            title: "Conta",
+            title: "Meu Perfil",
+            headerShown: true,
             tabBarIcon: ({ color }) => (
               <FontAwesome name="user" size={25} color={color} />
             ),

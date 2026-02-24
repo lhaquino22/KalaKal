@@ -9,6 +9,8 @@ import {
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
+  Platform,
+  ScrollView,
   Text,
   StatusBar,
   TextInput,
@@ -16,8 +18,10 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function EntrarScreen() {
+  const insets = useSafeAreaInsets();
   const [username, setUsername] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,94 +65,105 @@ export default function EntrarScreen() {
       <View style={{ flex: 1 }}>
         <Loading loading={loading} />
         <StatusBar barStyle="light-content" />
-        <ImageBackground
-          source={require("@/assets/images/background.png")}
-          style={estilo.image}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
         >
-          <KeyboardAvoidingView behavior="height" style={{ flex: 1 }}>
-            <View
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                padding: 10,
-              }}
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
+          >
+            <ImageBackground
+              source={require("@/assets/images/background.png")}
+              style={estilo.image}
             >
-              <Image
-                source={require("@/assets/images/logo_vertical.png")}
-                style={estilo.logo}
-              />
-              <View style={estilo.inputContainer}>
-                <TextInput
-                  style={estilo.textInput}
-                  placeholder={"Usuário"}
-                  onChangeText={setUsername}
-                  placeholderTextColor="rgba(255,255,255,0.5)"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="next"
-                  keyboardType="email-address"
-                  value={username}
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                  padding: 10,
+                  paddingTop: insets.top,
+                  paddingBottom: insets.bottom + 16,
+                }}
+              >
+                <Image
+                  source={require("@/assets/images/logo_vertical.png")}
+                  style={estilo.logo}
                 />
-                <TextInput
-                  style={estilo.textInput}
-                  placeholder={"Senha"}
-                  placeholderTextColor="rgba(255,255,255,0.5)"
-                  secureTextEntry={true}
-                  onChangeText={setSenha}
-                  returnKeyType="done"
-                  onSubmitEditing={() => SignIn()}
-                  value={senha}
-                />
-              </View>
-              <View style={estilo.buttonsContainer}>
-                <TouchableOpacity onPress={() => SignIn()}>
-                  <Image
-                    source={require("@/assets/images/login.png")}
-                    style={estilo.buttons}
+                <View style={estilo.inputContainer}>
+                  <TextInput
+                    style={estilo.textInput}
+                    placeholder={"Usuário"}
+                    onChangeText={setUsername}
+                    placeholderTextColor="rgba(255,255,255,0.5)"
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="next"
+                    keyboardType="email-address"
+                    value={username}
                   />
-                </TouchableOpacity>
-                <Link href="/auth/register" asChild>
-                  <TouchableOpacity>
+                  <TextInput
+                    style={estilo.textInput}
+                    placeholder={"Senha"}
+                    placeholderTextColor="rgba(255,255,255,0.5)"
+                    secureTextEntry={true}
+                    onChangeText={setSenha}
+                    returnKeyType="done"
+                    onSubmitEditing={() => SignIn()}
+                    value={senha}
+                  />
+                </View>
+                <View style={estilo.buttonsContainer}>
+                  <TouchableOpacity onPress={() => SignIn()}>
                     <Image
-                      source={require("@/assets/images/cadastro.png")}
+                      source={require("@/assets/images/login.png")}
                       style={estilo.buttons}
                     />
                   </TouchableOpacity>
-                </Link>
+                  <Link href="/auth/register" asChild>
+                    <TouchableOpacity>
+                      <Image
+                        source={require("@/assets/images/cadastro.png")}
+                        style={estilo.buttons}
+                      />
+                    </TouchableOpacity>
+                  </Link>
+                </View>
+                <View style={{ marginTop: 16, gap: 12 }}>
+                  <Link href="/auth/forgot-password" asChild>
+                    <TouchableOpacity>
+                      <Text
+                        style={{
+                          color: "#FFFFFF",
+                          textAlign: "center",
+                          textDecorationLine: "underline",
+                          fontWeight: "600",
+                        }}
+                      >
+                        Esqueci minha senha
+                      </Text>
+                    </TouchableOpacity>
+                  </Link>
+                  <Link href="/auth/recover-account" asChild>
+                    <TouchableOpacity>
+                      <Text
+                        style={{
+                          color: "rgba(255,255,255,0.7)",
+                          textAlign: "center",
+                          fontSize: 13,
+                        }}
+                      >
+                        Reativar conta desativada
+                      </Text>
+                    </TouchableOpacity>
+                  </Link>
+                </View>
               </View>
-              <View style={{ marginTop: 16, gap: 12 }}>
-                <Link href="/auth/forgot-password" asChild>
-                  <TouchableOpacity>
-                    <Text
-                      style={{
-                        color: "#FFFFFF",
-                        textAlign: "center",
-                        textDecorationLine: "underline",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Esqueci minha senha
-                    </Text>
-                  </TouchableOpacity>
-                </Link>
-                <Link href="/auth/recover-account" asChild>
-                  <TouchableOpacity>
-                    <Text
-                      style={{
-                        color: "rgba(255,255,255,0.7)",
-                        textAlign: "center",
-                        fontSize: 13,
-                      }}
-                    >
-                      Reativar conta desativada
-                    </Text>
-                  </TouchableOpacity>
-                </Link>
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-        </ImageBackground>
+            </ImageBackground>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
   );

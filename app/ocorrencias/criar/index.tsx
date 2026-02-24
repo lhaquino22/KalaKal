@@ -17,6 +17,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import z from "zod";
 
 interface DropdownProps {
@@ -42,6 +43,7 @@ const toApiDateFormat = (dateString: string): string => {
 };
 
 export default function CriarOcorrenciaScreen(): JSX.Element {
+  const insets = useSafeAreaInsets();
   const [formData, setFormData] = useState<OcorrenciaForm>({
     identificador: "",
     tipo_caso: "humano",
@@ -233,7 +235,7 @@ export default function CriarOcorrenciaScreen(): JSX.Element {
     <>
       <StatusBar barStyle="dark-content" />
       <View className="flex-1 bg-gray-100 px-4 pt-5">
-        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: insets.bottom + 20 }}>
           <View className="bg-white rounded-xl p-6 mb-6 shadow-sm">
             <Text className="text-xl font-bold text-gray-800 mb-6">
               Nova Ocorrência

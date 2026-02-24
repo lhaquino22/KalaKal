@@ -14,9 +14,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -71,7 +73,7 @@ export default function ForgotPasswordScreen() {
     >
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ paddingTop: 64, paddingHorizontal: 24, flex: 1 }}>
+        <View style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, flex: 1 }}>
           <TouchableOpacity
             style={{
               width: 48,
@@ -141,7 +143,7 @@ export default function ForgotPasswordScreen() {
         </View>
       </ScrollView>
 
-      <View style={{ paddingHorizontal: 24, paddingBottom: 32 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 16 }}>
         <TouchableOpacity
           style={{
             backgroundColor: isSubmitting ? "#93C5FD" : "#2563EB",

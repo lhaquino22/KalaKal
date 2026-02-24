@@ -18,6 +18,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as z from "zod";
 
 const registerSchema = z
@@ -41,6 +42,7 @@ const registerSchema = z
 type RegisterData = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen() {
+  const insets = useSafeAreaInsets();
   const [formData, setFormData] = useState<Partial<RegisterData>>({
     username: "",
     email: "",
@@ -118,18 +120,20 @@ export default function RegisterScreen() {
       <View style={{ flex: 1 }}>
         <Loading loading={loading} />
         <StatusBar barStyle="light-content" />
-        <ImageBackground
-          source={require("@/assets/images/background.png")}
-          style={estilo.container}
-          resizeMode="cover"
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={{ flex: 1 }}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
         >
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={estilo.keyboardAvoidingContainer}
-            keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0}
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            bounces={false}
           >
-            <ScrollView
-              contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
+            <ImageBackground
+              source={require("@/assets/images/background.png")}
+              style={estilo.container}
+              resizeMode="cover"
             >
               <View
                 style={{
@@ -137,6 +141,8 @@ export default function RegisterScreen() {
                   justifyContent: "center",
                   alignItems: "center",
                   padding: 10,
+                  paddingTop: insets.top,
+                  paddingBottom: insets.bottom + 16,
                 }}
               >
                 <Image
@@ -157,9 +163,11 @@ export default function RegisterScreen() {
                     returnKeyType="next"
                     value={formData.username}
                   />
-                  {errors.username && (
-                    <Text style={estilo.errorText}>{errors.username}</Text>
-                  )}
+                  <View style={{ minHeight: 18 }}>
+                    {errors.username && (
+                      <Text style={estilo.errorText}>{errors.username}</Text>
+                    )}
+                  </View>
 
                   <TextInput
                     style={[
@@ -175,9 +183,11 @@ export default function RegisterScreen() {
                     keyboardType="email-address"
                     value={formData.email}
                   />
-                  {errors.email && (
-                    <Text style={estilo.errorText}>{errors.email}</Text>
-                  )}
+                  <View style={{ minHeight: 18 }}>
+                    {errors.email && (
+                      <Text style={estilo.errorText}>{errors.email}</Text>
+                    )}
+                  </View>
 
                   <TextInput
                     style={[
@@ -191,9 +201,11 @@ export default function RegisterScreen() {
                     returnKeyType="next"
                     value={formData.first_name}
                   />
-                  {errors.first_name && (
-                    <Text style={estilo.errorText}>{errors.first_name}</Text>
-                  )}
+                  <View style={{ minHeight: 18 }}>
+                    {errors.first_name && (
+                      <Text style={estilo.errorText}>{errors.first_name}</Text>
+                    )}
+                  </View>
 
                   <TextInput
                     style={[
@@ -207,9 +219,11 @@ export default function RegisterScreen() {
                     returnKeyType="next"
                     value={formData.last_name}
                   />
-                  {errors.last_name && (
-                    <Text style={estilo.errorText}>{errors.last_name}</Text>
-                  )}
+                  <View style={{ minHeight: 18 }}>
+                    {errors.last_name && (
+                      <Text style={estilo.errorText}>{errors.last_name}</Text>
+                    )}
+                  </View>
 
                   <TextInput
                     style={[
@@ -223,9 +237,11 @@ export default function RegisterScreen() {
                     returnKeyType="next"
                     value={formData.password}
                   />
-                  {errors.password && (
-                    <Text style={estilo.errorText}>{errors.password}</Text>
-                  )}
+                  <View style={{ minHeight: 18 }}>
+                    {errors.password && (
+                      <Text style={estilo.errorText}>{errors.password}</Text>
+                    )}
+                  </View>
 
                   <TextInput
                     style={[
@@ -242,11 +258,13 @@ export default function RegisterScreen() {
                     onSubmitEditing={handleRegister}
                     value={formData.password_confirm}
                   />
-                  {errors.password_confirm && (
-                    <Text style={estilo.errorText}>
-                      {errors.password_confirm}
-                    </Text>
-                  )}
+                  <View style={{ minHeight: 18 }}>
+                    {errors.password_confirm && (
+                      <Text style={estilo.errorText}>
+                        {errors.password_confirm}
+                      </Text>
+                    )}
+                  </View>
                 </View>
 
                 <View style={estilo.buttonsContainer}>
@@ -267,9 +285,9 @@ export default function RegisterScreen() {
                   </Link>
                 </View>
               </View>
-            </ScrollView>
-          </KeyboardAvoidingView>
-        </ImageBackground>
+            </ImageBackground>
+          </ScrollView>
+        </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
   );

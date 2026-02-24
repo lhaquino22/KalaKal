@@ -2,6 +2,7 @@ import Icon from "@expo/vector-icons/MaterialCommunityIcons";
 import React, { useRef, useState } from "react";
 import { Linking, TouchableOpacity, View } from "react-native";
 import MapView, { Callout, Marker, Polygon } from "react-native-maps";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { colors } from "../../commons";
 import style from "../../components/care-spots/styles";
 import { Text } from "react-native";
@@ -40,6 +41,7 @@ interface PolygonData {
 }
 
 export default function PontosCuidadoScreen() {
+  const insets = useSafeAreaInsets();
   const [isMapReady, setIsMapReady] = useState(false);
   const mapRef = useRef<MapView | null>(null);
 
@@ -137,7 +139,7 @@ export default function PontosCuidadoScreen() {
           />
         ))}
       </MapView>
-      <View style={style.menu}>
+      <View style={[style.menu, { bottom: insets.bottom + 20 }]}>
         <TouchableOpacity onPress={fitAllMarkers} style={style.centerButton}>
           <Icon
             name="image-filter-center-focus"

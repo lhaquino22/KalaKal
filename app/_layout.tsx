@@ -3,10 +3,11 @@ import "@/global.css";
 import { AuthProvider } from "@/hooks/useAPI";
 import { Stack } from "expo-router";
 import React from "react";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (
-    <>
+    <SafeAreaProvider>
       <AuthProvider>
         <GluestackUIProvider>
           <Stack
@@ -18,6 +19,6 @@ export default function RootLayout() {
           </Stack>
         </GluestackUIProvider>
       </AuthProvider>
-    </>
+    </SafeAreaProvider>
   );
 }

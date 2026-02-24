@@ -6,7 +6,6 @@ export default StyleSheet.create({
   },
   container: {
     flex: 1,
-    marginTop: 230,
   },
   itemsRow: {
     flex: 1,
@@ -24,7 +23,6 @@ export default StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 5,
-    marginTop: 250,
     borderRadius: 10,
   },
 });

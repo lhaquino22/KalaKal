@@ -15,9 +15,11 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function RecoverAccountScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const [payload, setPayload] = useState<AccountRecoveryPayload>({
     email: "",
     reason: "",
@@ -75,7 +77,7 @@ export default function RecoverAccountScreen() {
     >
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ paddingTop: 64, paddingHorizontal: 24, flex: 1 }}>
+        <View style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, flex: 1 }}>
           <TouchableOpacity
             style={{
               width: 48,
@@ -169,7 +171,7 @@ export default function RecoverAccountScreen() {
         </View>
       </ScrollView>
 
-      <View style={{ paddingHorizontal: 24, paddingBottom: 32 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 16 }}>
         <TouchableOpacity
           style={{
             backgroundColor: isSubmitting ? "#FCA5A5" : "#DC2626",

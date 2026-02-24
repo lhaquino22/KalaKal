@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ResetPasswordScreen() {
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function ResetPasswordScreen() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const insets = useSafeAreaInsets();
   const [isValidLink, setIsValidLink] = useState(true);
 
   useEffect(() => {
@@ -138,6 +140,8 @@ export default function ResetPasswordScreen() {
           justifyContent: "center",
           alignItems: "center",
           paddingHorizontal: 24,
+          paddingTop: insets.top,
+          paddingBottom: insets.bottom + 16,
         }}
       >
         <StatusBar style="dark" />
@@ -209,7 +213,7 @@ export default function ResetPasswordScreen() {
     >
       <StatusBar style="dark" />
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        <View style={{ paddingTop: 64, paddingHorizontal: 24, flex: 1 }}>
+        <View style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, flex: 1 }}>
           <TouchableOpacity
             style={{
               width: 48,
@@ -349,7 +353,7 @@ export default function ResetPasswordScreen() {
         </View>
       </ScrollView>
 
-      <View style={{ paddingHorizontal: 24, paddingBottom: 32 }}>
+      <View style={{ paddingHorizontal: 24, paddingBottom: insets.bottom + 16 }}>
         <TouchableOpacity
           style={{
             backgroundColor: isSubmitting ? "#93C5FD" : "#2563EB",

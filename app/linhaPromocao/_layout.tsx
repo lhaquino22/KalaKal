@@ -8,7 +8,7 @@ export default function LinhaPromocaoLayout() {
       <Stack
         screenOptions={{
           headerShown: true,
-          title: "Ocorrências",
+          title: "Linha de Promoção",
         }}
       >
         <Stack.Screen

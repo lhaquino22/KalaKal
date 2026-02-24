@@ -4,6 +4,14 @@ import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { ScrollView, View } from "react-native";
 
+const taxonomia = [
+  { label: "Ordem", value: "Kinetoplastida" },
+  { label: "Família", value: "Trypanosomatidae" },
+  { label: "Gênero", value: "Leishmania" },
+  { label: "Complexo", value: "L. donovani" },
+  { label: "Espécies", value: "L. chagasi, L. donovani, L. infantum" },
+];
+
 export default function ConteudoScreen() {
   const { content, title } = useLocalSearchParams<{
     content: string;
@@ -16,33 +24,20 @@ export default function ConteudoScreen() {
         <Text style={style.text}>{content}</Text>
 
         {title === "Agente Etiológico" && (
-          <View>
-            <View style={style.extraInfo}>
-              <Text style={[style.extraTitle, { flex: 1 }]}>Família</Text>
-              <View style={[style.extraDescription, { marginLeft: 10 }]}>
-                <Text style={style.extraDescriptionText}>trypanosomatidae</Text>
+          <View style={style.taxonomyContainer}>
+            <Text style={style.taxonomyTitle}>Classificação Taxonômica</Text>
+            {taxonomia.map((item, index) => (
+              <View
+                key={item.label}
+                style={[
+                  style.taxonomyRow,
+                  index < taxonomia.length - 1 && style.taxonomyRowBorder,
+                ]}
+              >
+                <Text style={style.taxonomyLabel}>{item.label}</Text>
+                <Text style={style.taxonomyValue}>{item.value}</Text>
               </View>
-            </View>
-            <View style={style.extraInfo}>
-              <Text style={[style.extraTitle, { flex: 1 }]}>Gênero</Text>
-              <View style={[style.extraDescription, { marginLeft: 10 }]}>
-                <Text style={style.extraDescriptionText}>Leishmania</Text>
-              </View>
-            </View>
-            <View style={style.extraInfo}>
-              <Text style={style.extraTitle}>Complexo de espécies</Text>
-              <View style={[style.extraDescription, { marginLeft: 10 }]}>
-                <Text style={style.extraDescriptionText}>L. donovani</Text>
-              </View>
-            </View>
-            <View style={style.extraInfo}>
-              <Text style={style.extraTitle}>Espécies</Text>
-              <View style={[style.extraDescription, { marginLeft: 10 }]}>
-                <Text style={style.extraDescriptionText}>L. chagasi</Text>
-                <Text style={style.extraDescriptionText}>L. donovani</Text>
-                <Text style={style.extraDescriptionText}>L. infantum</Text>
-              </View>
-            </View>
+            ))}
           </View>
         )}
       </View>

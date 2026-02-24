@@ -31,30 +31,43 @@ export default StyleSheet.create({
     marginBottom: 20,
   },
   text: {
-    fontSize: 16,
+    fontSize: 15,
     color: colors.defaultTextColor,
-    textAlign: 'justify'
+    textAlign: 'justify',
+    lineHeight: 22,
   },
-  extraInfo: {
-    flex: 1,
-    padding: 10,
+  taxonomyContainer: {
+    marginTop: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#F3F4F6',
+    paddingTop: 16,
+  },
+  taxonomyTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#1F2937',
+    marginBottom: 12,
+  },
+  taxonomyRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 4,
   },
-  extraTitle: {
+  taxonomyRowBorder: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#F3F4F6',
+  },
+  taxonomyLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6B7280',
+    width: 90,
+  },
+  taxonomyValue: {
+    fontSize: 14,
     color: colors.defaultTextColor,
-    flex: 1
-  },
-  extraDescription: {
-    backgroundColor: colors.secondaryColor,
-    borderRadius: 5,
-    padding: 16,
-    maxWidth: 140,
-    flex: 4,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  extraDescriptionText: {
-    color: '#fff',
+    flex: 1,
+    fontStyle: 'italic',
   },
 });

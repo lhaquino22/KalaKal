@@ -1,44 +1,147 @@
 const itens = [
     {
       titulo: 'Descrição',
-      descricao:
-        `\tCalazar ou a Leishmaniose Visceral (LV) é uma doença zoonótica que causa um conjunto de síndromes clínicas em humanos que podem comprometer pele, mucosa e vísceras (OPAS,2019).`,
+      icon: 'information-circle-outline' as const,
+      descricao: `A Leishmaniose Visceral (LV), também conhecida como Calazar, é uma doença infecciosa sistêmica, de evolução crônica e potencialmente fatal. É causada por protozoários do gênero Leishmania, que acometem órgãos internos como fígado, baço e medula óssea. Quando não tratada, pode levar ao óbito em até 90% dos casos.
+
+Classificada pela Organização Mundial da Saúde (OMS) como uma das doenças tropicais negligenciadas prioritárias, a LV está entre as seis endemias mais importantes do mundo. Nas Américas, o Brasil concentra aproximadamente 90% dos casos registrados.
+
+Historicamente identificada como endemia rural, a LV sofreu expansão progressiva para áreas urbanas e periurbanas a partir da década de 1980, associada a fatores como migração, urbanização desordenada e adaptação do vetor ao ambiente doméstico.
+
+A doença é de notificação compulsória semanal no Brasil (CID-10: B55.0).`,
     },
     {
       titulo: 'Agente Etiológico',
-      descricao: `\tAs leishmanioses são causadas por protozoários da ordem Kinetoplastida, família Trypanosomatidae, gênero Leishmania (L.).\n\n\tNo Brasil, as espécies causadoras da leishmaniose visceral fazem parte do complexo L. donovani que são classificadas em três espécies: L. chagasi, L. infantum, L. donovani, diferenciando-se por seus vetores, hospedeiros reservatórios e patologia. A Leishmania (L.) infantum está, comumente responsável como a espécie no Brasil.\n\n(MAURÍCIO; STOHARD; MILES, 2000; LUKES et al., 2007; OLIVEIRA et al., 2009; RAYMOND et al., 2012).`
+      icon: 'bug-outline' as const,
+      descricao: `O agente etiológico da Leishmaniose Visceral nas Américas é um protozoário intracelular obrigatório, que parasita células do sistema fagocítico mononuclear (macrófagos).
+
+Classificação taxonômica:
+- Ordem: Kinetoplastida
+- Família: Trypanosomatidae
+- Gênero: Leishmania
+- Complexo: L. donovani
+- Espécie no Brasil: L. (L.) infantum
+
+Estudos bioquímicos e moleculares demonstraram que L. chagasi e L. infantum são a mesma espécie, sendo L. infantum o nome atualmente aceito pela comunidade científica.
+
+O parasito apresenta duas formas no ciclo evolutivo:
+
+Amastigota: forma arredondada, sem flagelo, encontrada no interior dos macrófagos do hospedeiro vertebrado. Mede de 2 a 5 micrômetros.
+
+Promastigota: forma alongada e flagelada, encontrada no tubo digestivo do inseto vetor. Diferencia-se em promastigotas metacíclicas (formas infectantes) no intestino anterior do flebotomíneo.`,
     },
     {
       titulo: 'Vetor',
-      descricao: `\tO principal vetor da América Central e do Sul da leishmaniose visceral (LV) causada por Leishmania infantum é a fêmea de insetos de flebotomíneos da espécie Lutzomyia longipalpis.\n\n\tEsses vetores tem metamorfose completa com estágios de: ovo, larva, pupa e adultos.\n\n As fêmeas adultas de L. longipalpis têm atividade crepuscular e noturna, embora também possam estar ativos durante o dia. E as estratégias de controle de vigilância do vetor são direcionadas aos estágios adultos. (OPAS,2019; SOUSA-PAULA et al.,2020).\n\n\tSaiba mais sobre vetor ( link para abrir: https://www.who.int/leishmaniasis/disease/vector/en/)
-      `
+      icon: 'cellular-outline' as const,
+      descricao: `O principal vetor da LV no Brasil é o flebotomíneo Lutzomyia longipalpis, da ordem Diptera, família Psychodidae. Popularmente conhecido como mosquito-palha, tatuquira, birigui ou asa-branca, conforme a região.
+
+Características:
+- Insetos pequenos (2 a 3 mm), menores que um pernilongo comum
+- Coloração amarelada (cor de palha)
+- Corpo com pilosidade abundante
+- Voo curto e saltitante
+
+Biologia:
+- Ciclo terrestre com quatro fases: ovo, larva (4 estádios), pupa e adulto
+- Desenvolvimento em locais úmidos, sombreados e ricos em matéria orgânica
+- Ciclo completo dura de 30 a 45 dias
+
+Hábitos:
+- Atividade crepuscular e noturna
+- Somente as fêmeas são hematófagas
+- Adaptou-se ao ambiente peridomiciliar e domiciliar (galinheiros, canis, interior de residências)
+- Maior abundância durante ou após as chuvas`,
     },
     {
       titulo: 'Reservatório',
-      descricao: `São aqueles hospedeiros vertebrados que mantêm o parasita na natureza e, portanto, certos vetores são infectados por eles e o ciclo de transmissão continua a existir. Os reservatórios são domésticos e selvagens. Entre os selvagens estão: marsupiais, urso-preguiça, tamanduá, menor, raposa e roedores. O doméstico mais importante para L. (L) infantum está o cão (OPAS,2019).\n\n\tQuer conhecer mais sobre os tipos de reservatórios (link para abrir: https://iris.paho.org/bitstream/handle/10665.2/50524/9789275320631_spa.pdf?sequence=1&isAllowed=y)`
+      icon: 'paw-outline' as const,
+      descricao: `Os reservatórios são hospedeiros vertebrados que mantêm o parasito na natureza, permitindo a continuidade do ciclo de transmissão.
+
+Reservatórios silvestres:
+- Raposas: Dusicyon vetulus (raposa-do-campo) e Cerdocyon thous (cachorro-do-mato), primeiros reservatórios silvestres identificados no Brasil
+- Marsupiais: Didelphis albiventris (gambá), com hábitos sinantrópicos que conectam os ciclos silvestre e doméstico
+
+Reservatório doméstico:
+O cão doméstico (Canis familiaris) é o principal reservatório em áreas urbanas e periurbanas. A infecção canina precede historicamente a ocorrência de casos humanos. Os cães infectados apresentam intenso parasitismo cutâneo, favorecendo a infecção dos flebotomíneos. Muitos cães podem ser assintomáticos, servindo como fonte silenciosa de infecção.
+
+Sinais clínicos nos cães: emagrecimento, queda de pelos (especialmente ao redor dos olhos), crescimento exagerado das unhas, úlceras cutâneas e apatia.
+
+O controle do reservatório canino é uma das estratégias do Programa de Vigilância e Controle da LV do Ministério da Saúde, incluindo inquéritos sorológicos e uso de coleiras impregnadas com deltametrina.`,
     },
     {
       titulo: 'Modo de infecção',
-      descricao: `A infecção ocorre quando formas promastigotas infectantes são inoculadas no tecido do hospedeiro durante o repasto sanguíneo do inseto vetor. Após escaparem da lise mediada pelo sistema complemento, as promastigotas de Leishmania invadem rapidamente a célula alvo para iniciar a fase intracelular da infecção, já que uma vez internalizadas aos fagócitos, esses parasitos modulam o microambiente estabelecendo a infecção (DESJEUX, 2004).\n\n\tNo macrófago, os parasitos perdem o flagelo, tornando-se arredondados ou ovoides e são denominadas de amastigotas, formas que residem no interior dos fagolisossomos, onde sobrevivem e se multiplicam. Macrófagos infectados se rompem e liberam amastigotas com potencial infectante, contaminando macrófagos vizinhos. Em um novo repasto sanguíneo, o inseto vetor ingere amastigotas infectados. Essas amastigotas, ao chegarem ao intestino do inseto, transformam-se em promastigotas e rapidamente se multiplicam. O inseto, ao exercer um novo hematofagismo, inocula formas infectantes e o ciclo vertebrado se completa.\n\n(SACKS; KAMHAWI, 2001; OLIVEIRA et al., 2009)`
+      icon: 'fitness-outline' as const,
+      descricao: `A transmissão ocorre pela picada de fêmeas de flebotomíneos infectados durante o repasto sanguíneo. Não há transmissão direta de pessoa a pessoa.
+
+Ciclo de transmissão:
+
+1. A fêmea do flebotomíneo realiza repasto sanguíneo em hospedeiro infectado (geralmente o cão), ingerindo macrófagos com formas amastigotas.
+
+2. No tubo digestivo do inseto, as amastigotas se transformam em promastigotas flageladas, que se multiplicam e migram para o intestino anterior.
+
+3. Ao picar novo hospedeiro, a fêmea inocula promastigotas metacíclicas (formas infectantes) junto com a saliva.
+
+4. As promastigotas são fagocitadas pelos macrófagos do hospedeiro, onde se transformam em amastigotas intracelulares.
+
+5. As amastigotas se multiplicam até romper os macrófagos, disseminando-se para baço, fígado, medula óssea e linfonodos.
+
+Período de incubação: 10 dias a 24 meses no homem (média de 2 a 6 meses); 3 meses a anos no cão (média de 3 a 7 meses).
+
+Crianças, idosos e imunossuprimidos (HIV/AIDS) são mais vulneráveis à infecção.`,
     },
     {
       titulo: 'Sintomatologia',
-      descricao: `
-      O calazar pode se manifestar com um quadro clínico leve, moderado ou grave, no entanto estudos relatam que a maioria dos indivíduos infectados é assintomática e, podem não serem acompanhando pelo sistema de vigilância ou seguirem um tratamento. No estágio inicial a doença pode ser facilmente confundida com diferentes processos infecciosos. Uma proporção de indivíduos infectados apresentará sintomas que evoluem insidiosamente, com esplenomegalia, febre irregular, anemia ou pancitopenia, perda de peso e fraqueza ocorrendo progressivamente ao longo de um período de semanas ou mesmo meses. (OPAS, 2019; FABIANA ALVES et. al, 2018).
-      `
+      icon: 'medkit-outline' as const,
+      descricao: `A LV apresenta amplo espectro clínico, desde formas assintomáticas até formas graves. A maioria dos infectados permanece assintomática. A evolução clínica divide-se em três períodos:
+
+Período Inicial (Fase Aguda):
+- Febre diária ou intermitente
+- Palidez cutâneo-mucosa discreta
+- Hepatoesplenomegalia de aumento discreto a moderado
+- Pode haver tosse seca e diarreia
+- Estado geral preservado
+- Facilmente confundida com outras doenças febris
+
+Período de Estado:
+- Evolução arrastada (mais de 2 meses)
+- Febre irregular e persistente
+- Emagrecimento progressivo
+- Anemia importante
+- Esplenomegalia acentuada (baço pode ultrapassar a cicatriz umbilical)
+- Edema de membros inferiores
+
+Período Final (se não tratada):
+- Comprometimento intenso do estado geral
+- Desnutrição grave
+- Edema generalizado
+- Hemorragias (epistaxe, petéquias, equimoses)
+- Icterícia
+- Infecções bacterianas secundárias (principal causa de óbito)
+- Letalidade superior a 90% sem tratamento
+
+Sinais de gravidade: icterícia, fenômenos hemorrágicos, edema generalizado, instabilidade hemodinâmica, coinfecção HIV/Leishmania, idade < 6 meses ou > 65 anos.`,
     },
     {
       titulo: 'Aspectos Epidemiológicos',
-      descricao: `
-      As leishmanioses são consideradas doenças endêmicas em 102 países no mundo e segundo a Organização Mundial de Saúde (OMS) é a sexta endemia mais importante, e a segunda causa de morte entre as infecções parasitárias (OMS, 2013; NOGUEIRA; MONTEIRO; ESCOBAR, 2013; WHO, 2015; OPAS, 2019). Cerca de 12 milhões de pessoas são clinicamente afetadas e 1,5 a 2,0 milhões de novos casos ocorrem a cada ano, sendo em média 1,5 milhões de leishmaniose tegumentar (LT) e 200.000 – 400.000, leishmaniose visceral (LV).
-  
-      Nas Américas, 96% dos registros de LV, referente ao período de 2018, foram notificados no Brasil, com uma incidência 5.05 casos para 100.000 habitantes (OPAS,2019b). Na década de 1990, aproximadamente 90% dos casos notificados de LV no Brasil ocorreram na região Nordeste. Em 2012, decorrente do processo de expansão da doença para outras regiões do Brasil, modificou a situação epidemiológica da LV no país, sendo a região Nordeste responsável por 43,1% dos casos (BRASIL, 2019).
-      
-      No estado do Piauí, a primeira grande epidemia urbana de LV ocorreu entre os anos 1980 a 1986, com um maior de casos em 1983 e 1984 (Costa, 1990). Segundo Werneck (2008), ao avaliar a efetividade das estratégias de controle de LV na cidade de Teresina-PI, constatou a segunda grande epidemia no estado no período de 1992 a 1995, com pico da taxa de incidência nos anos de 1993 e 1994. Drumond (2011), ao analisar quarenta anos de LV no Piauí, enfatizou o aumento da incidência entre 2003 e 2004, destacando um movimento cíclico da doença com pico a cada 10 anos.
-      
-      Em uma recente verificação no banco de dados, no período de 2008 a 2018 no Piauí observou nos anos de 2014 e 2008 foram constatadas as maiores taxas de incidência da doença (8,9/100.000 hab. e 8,9/100.000 hab., respectivamente). Além disso, ao analisar o ranking da carga das doenças tropicais negligenciadas no Piauí, comparando os anos de 2008 e 2017, constatamos que as leishmanioses ocupam a maior carga dentro do estado, mantendo-se na 1º posição em todo o período estudado.
-      
-      `
+      icon: 'stats-chart-outline' as const,
+      descricao: `No Brasil:
+- Responsável por aproximadamente 90% dos casos de LV nas Américas
+- Média de 3.000 a 3.500 casos notificados por ano
+- Letalidade de 7% a 10%
+- Presente em todas as regiões, com maior concentração no Nordeste e Norte
+- Urbanização progressiva desde a década de 1980, com epidemias em grandes cidades
+- Maior incidência em crianças menores de 5 anos e adultos jovens do sexo masculino
+- Padrão cíclico com picos epidêmicos a cada 10 anos
+
+No Piauí:
+- Um dos estados mais afetados do Brasil
+- Taxa de incidência média de 6,03/100.000 hab. (2007-2019), três vezes superior à média nacional
+- Teresina concentra a maioria dos casos, com epidemia urbana desde 1981
+- Série histórica confirma padrão cíclico: picos em 1983-84, 1993-94, 2003-04 e 2013
+- Tendência de aumento na faixa de 40 a 59 anos
+- Leishmanioses ocupam a 1ª posição na carga de doenças tropicais negligenciadas do estado
+
+A coinfecção LV/HIV tem apresentado aumento progressivo, representando desafio adicional para o manejo clínico e o sistema de vigilância.`,
     }
   ];
 

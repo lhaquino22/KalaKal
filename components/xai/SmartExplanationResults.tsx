@@ -9,13 +9,15 @@ interface SmartExplanationResultsProps {
   patientData: Record<string, any> | null;
   loading?: boolean;
   className?: string;
+  camposImputados?: Record<string, any>;
 }
 
-const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({ 
-  result, 
-  patientData, 
+const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({
+  result,
+  patientData,
   loading = false,
-  className = '' 
+  className = '',
+  camposImputados,
 }) => {
   if (loading) {
     return (
@@ -39,7 +41,7 @@ const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({
         <ResultsHeader result={result} />
         <PredictionSection result={result} />
         <ExplanationSection result={result} />
-        <VariablesSection result={result} patientData={patientData} />
+        <VariablesSection result={result} patientData={patientData} camposImputados={camposImputados} />
       </View>
     </ScrollView>
   );
@@ -48,22 +50,17 @@ const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({
 const LoadingState: React.FC = () => (
   <View style={styles.loadingContent}>
     <View style={styles.loadingAnimation}>
-      <Text style={styles.brainAnimation}>🧠</Text>
       <Text size="lg" bold style={styles.loadingTitle}>
-        Processando Análise Inteligente
+        Processando análise...
       </Text>
     </View>
-    
+
     <View style={styles.loadingSteps}>
       <LoadingStep text="✓ Dados validados" completed />
-      <LoadingStep text="🔄 Detectando melhor modelo..." active />
-      <LoadingStep text="⏳ Calculando SHAP..." pending />
-      <LoadingStep text="📊 Gerando explicação..." pending />
+      <LoadingStep text="Selecionando modelo..." active />
+      <LoadingStep text="Calculando explicação..." pending />
+      <LoadingStep text="Gerando resultado..." pending />
     </View>
-    
-    <Text size="sm" style={styles.loadingText}>
-      A API está analisando seus dados e selecionando o modelo mais adequado...
-    </Text>
   </View>
 );
 
@@ -85,10 +82,9 @@ const LoadingStep: React.FC<{ text: string; completed?: boolean; active?: boolea
 
 const EmptyState: React.FC = () => (
   <View style={styles.emptyContent}>
-    <Text style={styles.emptyIcon}>🎯</Text>
-    <Text size="lg" bold style={styles.emptyTitle}>Pronto para Análise</Text>
+    <Text size="lg" bold style={styles.emptyTitle}>Aguardando dados</Text>
     <Text size="sm" style={styles.emptyText}>
-      Preencha os dados acima e a API detectará automaticamente o melhor modelo para sua análise
+      Preencha o formulário acima para gerar a análise preditiva
     </Text>
   </View>
 );
@@ -96,10 +92,7 @@ const EmptyState: React.FC = () => (
 const ResultsHeader: React.FC<{ result: XaiResultadoResponse & { model_used: string } }> = ({ result }) => (
   <View style={styles.resultsHeader}>
     <Text size="xl" bold style={styles.resultsTitle}>
-      🎯 Análise Completa
-    </Text>
-    <Text size="sm" style={styles.resultsSubtitle}>
-      Modelo detectado automaticamente pela API
+      Resultado da Análise
     </Text>
     {result.abordagem && (
       <View style={styles.approachBadge}>
@@ -114,7 +107,7 @@ const ResultsHeader: React.FC<{ result: XaiResultadoResponse & { model_used: str
 const PredictionSection: React.FC<{ result: XaiResultadoResponse }> = ({ result }) => (
   <View style={styles.section}>
     <Text size="md" bold style={styles.sectionTitle}>
-      📊 Resultado da Predição
+      Predição
     </Text>
     
     <View style={styles.predictionContainer}>
@@ -137,7 +130,7 @@ const PredictionSection: React.FC<{ result: XaiResultadoResponse }> = ({ result 
 const ExplanationSection: React.FC<{ result: XaiResultadoResponse }> = ({ result }) => (
   <View style={styles.section}>
     <Text size="md" bold style={styles.sectionTitle}>
-      📈 Explicação SHAP
+      Importância das Variáveis
     </Text>
     <Text size="xs" style={styles.sectionSubtitle}>
       Gráfico mostrando a importância de cada variável na predição
@@ -151,12 +144,12 @@ const ExplanationSection: React.FC<{ result: XaiResultadoResponse }> = ({ result
           resizeMode="contain"
         />
         <Text size="xs" style={styles.chartDescription}>
-          🟢 Valores que diminuem o risco | 🔴 Valores que aumentam o risco
+          Verde: diminui o risco | Vermelho: aumenta o risco
         </Text>
       </View>
     ) : (
       <View style={styles.noChartContainer}>
-        <Text style={styles.noChartIcon}>📊</Text>
+        <Text style={styles.noChartIcon}>—</Text>
         <Text size="sm" style={styles.noChartText}>
           Gráfico de explicação não disponível
         </Text>
@@ -165,31 +158,42 @@ const ExplanationSection: React.FC<{ result: XaiResultadoResponse }> = ({ result
   </View>
 );
 
-const VariablesSection: React.FC<{ 
-  result: XaiResultadoResponse; 
+const VariablesSection: React.FC<{
+  result: XaiResultadoResponse;
   patientData: Record<string, any> | null;
-}> = ({ result, patientData }) => (
+  camposImputados?: Record<string, any>;
+}> = ({ result, patientData, camposImputados }) => (
   <View style={styles.section}>
     <Text size="md" bold style={styles.sectionTitle}>
-      📋 Variáveis Analisadas
+      Variáveis Utilizadas
     </Text>
     <Text size="xs" style={styles.sectionSubtitle}>
       Dados utilizados pelo modelo para gerar a predição
     </Text>
-    
+
     <View style={styles.variablesList}>
-      {result.variaveis.map((variavel, index) => (
-        <View key={index} style={styles.variableItem}>
-          <View style={styles.variableHeader}>
-            <Text size="sm" bold style={styles.variableName}>{variavel}</Text>
-            {patientData && patientData[variavel] !== undefined && (
-              <Text size="sm" style={styles.variableValue}>
-                {getFieldDisplayValue(variavel, patientData[variavel])}
-              </Text>
-            )}
+      {result.variaveis.map((variavel, index) => {
+        const isImputed = camposImputados && (variavel in camposImputados);
+        return (
+          <View key={index} style={[styles.variableItem, isImputed && styles.variableItemImputed]}>
+            <View style={styles.variableHeader}>
+              <View style={styles.variableNameRow}>
+                {isImputed && (
+                  <View style={styles.imputedTag}>
+                    <Text style={styles.imputedTagText}>IA</Text>
+                  </View>
+                )}
+                <Text size="sm" bold style={styles.variableName}>{variavel}</Text>
+              </View>
+              {patientData && patientData[variavel] !== undefined && (
+                <Text size="sm" style={styles.variableValue}>
+                  {getFieldDisplayValue(variavel, patientData[variavel])}
+                </Text>
+              )}
+            </View>
           </View>
-        </View>
-      ))}
+        );
+      })}
     </View>
   </View>
 );
@@ -232,9 +236,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  brainAnimation: {
-    fontSize: 48,
-  },
   loadingTitle: {
     color: '#1f2937',
   },
@@ -259,17 +260,9 @@ const styles = StyleSheet.create({
   stepText: {
     color: '#374151',
   },
-  loadingText: {
-    color: '#6b7280',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
   emptyContent: {
     alignItems: 'center',
     gap: 12,
-  },
-  emptyIcon: {
-    fontSize: 48,
   },
   emptyTitle: {
     color: '#1f2937',
@@ -288,10 +281,6 @@ const styles = StyleSheet.create({
   resultsTitle: {
     color: '#1f2937',
     marginBottom: 4,
-  },
-  resultsSubtitle: {
-    color: '#6b7280',
-    marginBottom: 8,
   },
   approachBadge: {
     backgroundColor: '#dbeafe',
@@ -381,12 +370,33 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  variableNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   variableName: {
     color: '#374151',
   },
   variableValue: {
     color: '#6b7280',
     fontWeight: '500',
+  },
+  variableItemImputed: {
+    backgroundColor: '#EEF2FF',
+    borderLeftWidth: 3,
+    borderLeftColor: '#6366F1',
+  },
+  imputedTag: {
+    backgroundColor: '#6366F1',
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+    borderRadius: 3,
+  },
+  imputedTagText: {
+    color: 'white',
+    fontSize: 9,
+    fontWeight: '700',
   },
 });
 

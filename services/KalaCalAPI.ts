@@ -356,6 +356,11 @@ class KalaCalAPI {
         return this.makeRequest<XaiResultadoResponse>(() => apiClient.post<XaiResultadoResponse>('/api/xai/resultado/', payload));
     }
 
+    // Resultado completo com imputação (requer JWT + X-API-Key)
+    static async getXaiResultadoCompleto(payload: Record<string, any>): Promise<ApiResponse<any>> {
+        return this.makeRequest<any>(() => apiClient.post<any>('/api/xai/resultado-completo/', payload));
+    }
+
     // CRUD Pacientes (opcional / debug) — requer JWT + X-API-Key
     static async listXaiPacientes(): Promise<ApiResponse<XaiPaciente[]>> {
         return this.makeRequest<XaiPaciente[]>(() => apiClient.get<XaiPaciente[]>('/api/xai/pacientes/'));

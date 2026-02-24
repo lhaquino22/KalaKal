@@ -1,114 +1,162 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button, ButtonText } from '@/components/ui/button';
 import SimpleExplicabilityForm from './SimpleExplicabilityForm';
+import ExpandedPatientForm from './ExpandedPatientForm';
 import SmartExplanationResults from './SmartExplanationResults';
 import SmartErrorHandler from './SmartErrorHandler';
+import ImputationResultCard from './ImputationResultCard';
 import { useSmartExplainability } from '@/hooks/useMultiModelExplainability';
+import { useExpandedExplainability, AnalysisMode } from '@/hooks/useExpandedExplainability';
 
 interface SmartExplainabilityPanelProps {
   className?: string;
 }
 
-const SmartExplainabilityPanel: React.FC<SmartExplainabilityPanelProps> = ({ 
-  className = '' 
+const SmartExplainabilityPanel: React.FC<SmartExplainabilityPanelProps> = ({
+  className = ''
 }) => {
-  const {
-    explanation,
-    loading,
-    error,
-    patientData,
-    generateExplanation,
-    clearExplanation,
-    retryExplanation
-  } = useSmartExplainability();
+  // Hook do modo padrão (existente)
+  const standard = useSmartExplainability();
+  // Hook do modo assistido (novo)
+  const expanded = useExpandedExplainability();
+
+  const isAssisted = expanded.mode === 'assistido';
+
+  // Selecionar estado ativo baseado no modo
+  const activeExplanation = isAssisted ? expanded.explanation : standard.explanation;
+  const activeLoading = isAssisted ? expanded.loading : standard.loading;
+  const activeError = isAssisted ? expanded.error : standard.error;
+  const activePatientData = isAssisted ? expanded.patientData : standard.patientData;
+
+  const handleModeChange = (newMode: AnalysisMode) => {
+    // Limpar resultados ao trocar de modo
+    standard.clearExplanation();
+    expanded.clearExplanation();
+    expanded.setMode(newMode);
+  };
 
   const handleFormSubmit = async (formData: Record<string, any>) => {
-    await generateExplanation(formData);
+    if (isAssisted) {
+      await expanded.generateExplanation(formData);
+    } else {
+      await standard.generateExplanation(formData);
+    }
   };
 
   const handleNewAnalysis = () => {
-    clearExplanation();
+    if (isAssisted) {
+      expanded.clearExplanation();
+    } else {
+      standard.clearExplanation();
+    }
   };
 
   const handleRetry = () => {
-    retryExplanation();
+    if (isAssisted) {
+      expanded.retryExplanation();
+    } else {
+      standard.retryExplanation();
+    }
   };
 
   const handleClearError = () => {
-    clearExplanation();
+    handleNewAnalysis();
   };
 
   return (
     <ScrollView style={[styles.container]}>
       <View style={styles.panel}>
-        {/* Header do Painel */}
-        <View style={styles.panelHeader}>
-          <Text size="2xl" bold style={styles.panelTitle}>
-            🧠 Análise de Explicabilidade Inteligente
-          </Text>
-          <Text size="sm" style={styles.panelSubtitle}>
-            Nossa API detecta automaticamente o melhor modelo baseado nos dados fornecidos
-          </Text>
+        {/* Toggle de Modo */}
+        <View style={styles.modeToggleContainer}>
+          <TouchableOpacity
+            style={[styles.modeOption, !isAssisted && styles.modeOptionActive]}
+            onPress={() => handleModeChange('padrao')}
+            activeOpacity={0.7}
+          >
+            <Text size="sm" bold={!isAssisted} style={[styles.modeText, !isAssisted && styles.modeTextActive]}>
+              Análise Direta
+            </Text>
+            <Text size="xs" style={[styles.modeDescription, !isAssisted && styles.modeDescriptionActive]}>
+              Usa apenas os dados informados
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.modeOption, isAssisted && styles.modeOptionActiveAssisted]}
+            onPress={() => handleModeChange('assistido')}
+            activeOpacity={0.7}
+          >
+            <Text size="sm" bold={isAssisted} style={[styles.modeText, isAssisted && styles.modeTextActive]}>
+              Análise Completa
+            </Text>
+            <Text size="xs" style={[styles.modeDescription, isAssisted && styles.modeDescriptionActive]}>
+              Estima dados faltantes automaticamente
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Workflow Inteligente */}
+        {/* Workflow */}
         <View style={styles.workflow}>
           {/* Formulário */}
           <View style={styles.formSection}>
-            <SimpleExplicabilityForm 
-              onSubmit={handleFormSubmit}
-              loading={loading}
-            />
+            {isAssisted ? (
+              <ExpandedPatientForm
+                onSubmit={handleFormSubmit}
+                loading={activeLoading}
+                onFieldsChange={expanded.updateSuggestion}
+              />
+            ) : (
+              <SimpleExplicabilityForm
+                onSubmit={handleFormSubmit}
+                loading={activeLoading}
+              />
+            )}
           </View>
 
+          {/* Card de Imputação (apenas modo assistido) */}
+          {isAssisted && expanded.explanation && (
+            <View style={styles.imputationSection}>
+              <ImputationResultCard
+                camposInformados={expanded.explanation.campos_informados || {}}
+                camposImputados={expanded.explanation.campos_imputados || {}}
+              />
+            </View>
+          )}
+
           {/* Resultados */}
-          {(loading || explanation) && (
+          {(activeLoading || activeExplanation) && (
             <View style={styles.resultsSection}>
-              <SmartExplanationResults 
-                result={explanation}
-                patientData={patientData}
-                loading={loading}
+              <SmartExplanationResults
+                result={activeExplanation as any}
+                patientData={activePatientData}
+                loading={activeLoading}
+                camposImputados={isAssisted && expanded.explanation ? expanded.explanation.campos_imputados : undefined}
               />
             </View>
           )}
         </View>
 
-        {/* Tratamento de Erros Inteligente */}
-        {error && (
-          <SmartErrorHandler 
-            error={error}
+        {/* Tratamento de Erros */}
+        {activeError && (
+          <SmartErrorHandler
+            error={activeError}
             onRetry={handleRetry}
             onClear={handleClearError}
           />
         )}
 
         {/* Ações Globais */}
-        {(explanation || error) && (
+        {(activeExplanation || activeError) && (
           <View style={styles.panelActions}>
-            <Button 
+            <Button
               onPress={handleNewAnalysis}
               action="secondary"
               variant="outline"
               style={styles.actionButton}
             >
-              <ButtonText>🔄 Nova Análise</ButtonText>
+              <ButtonText>Nova Análise</ButtonText>
             </Button>
-            
-            {explanation && (
-              <Button 
-                onPress={() => {
-                  // Implementar funcionalidade de compartilhamento se necessário
-                  console.log('Share functionality not implemented yet');
-                }}
-                action="secondary"
-                variant="outline"
-                style={styles.actionButton}
-              >
-                <ButtonText>📤 Compartilhar</ButtonText>
-              </Button>
-            )}
           </View>
         )}
       </View>
@@ -125,21 +173,43 @@ const styles = StyleSheet.create({
     padding: 8,
     gap: 24,
   },
-  panelHeader: {
+  modeToggleContainer: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+    overflow: 'hidden',
+    marginHorizontal: 8,
+    backgroundColor: 'white',
+  },
+  modeOption: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     alignItems: 'center',
-    paddingVertical: 16,
-    marginBottom: 8,
+    backgroundColor: 'white',
+    gap: 2,
   },
-  panelTitle: {
-    color: '#1f2937',
-    textAlign: 'center',
-    marginBottom: 8,
+  modeOptionActive: {
+    backgroundColor: '#16a34a',
   },
-  panelSubtitle: {
-    color: '#6b7280',
+  modeOptionActiveAssisted: {
+    backgroundColor: '#6366F1',
+  },
+  modeText: {
+    color: '#6B7280',
+    fontWeight: '500',
+  },
+  modeTextActive: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  modeDescription: {
+    color: '#9CA3AF',
     textAlign: 'center',
-    lineHeight: 20,
-    paddingHorizontal: 16,
+  },
+  modeDescriptionActive: {
+    color: 'rgba(255, 255, 255, 0.8)',
   },
   workflow: {
     gap: 24,
@@ -155,6 +225,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     borderWidth: 1,
     borderColor: '#f3f4f6',
+    marginHorizontal: 2,
+  },
+  imputationSection: {
     marginHorizontal: 2,
   },
   resultsSection: {

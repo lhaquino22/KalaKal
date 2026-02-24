@@ -8,13 +8,13 @@ export default function XaiLayout() {
       <Stack
         screenOptions={{
           headerShown: true,
-          title: "XAI - Explicabilidade",
+          title: "iKalaCal",
         }}
       >
         <Stack.Screen
           name="index"
           options={{
-            title: "🧠 XAI - Explicabilidade",
+            title: "iKalaCal",
           }}
         />
       </Stack>

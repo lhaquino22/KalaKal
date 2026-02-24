@@ -199,11 +199,8 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
       <View style={styles.formContent}>
         {/* Header */}
         <View style={styles.header}>
-          <Text size="xl" bold style={styles.title}>
-            Dados do Paciente
-          </Text>
           <Text size="sm" style={styles.subtitle}>
-            Preencha os dados para análise automática
+            Preencha os dados para gerar a análise
           </Text>
         </View>
 
@@ -313,7 +310,7 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
               AIDS
             </Text>
             <Text size="xs" style={styles.fieldHelper}>
-              Informar "Sim" ou "Não" ativa o modelo AIDS. Deixar "N/A" usa modelo básico.
+              Sim/Não ativa modelo especializado. N/A usa modelo básico.
             </Text>
             <View style={styles.toggleContainer}>
               <TouchableOpacity 
@@ -367,7 +364,7 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
           {/* Plaque */}
           <View style={styles.fieldItem}>
             <Text size="sm" style={styles.fieldLabel}>
-              Plaque
+              Plaquetas
             </Text>
             <Input style={[styles.input, errors.plaque && styles.inputError]}>
               <InputField
@@ -402,7 +399,7 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
             </View>
           ) : (
             <Text style={styles.submitButtonText}>
-              Gerar Explicação
+              Analisar
             </Text>
           )}
         </TouchableOpacity>

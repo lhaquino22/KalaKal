@@ -101,10 +101,10 @@ const SmartErrorHandler: React.FC<SmartErrorHandlerProps> = ({
       {errorType === 'validation' && (
         <View style={styles.suggestionsSection}>
           <Text size="sm" bold style={styles.suggestionsTitle}>
-            💡 Sugestões para Resolução
+            Sugestões
           </Text>
           <Text size="xs" style={styles.suggestionsSubtitle}>
-            Dependendo dos dados que você tem, diferentes modelos podem ser utilizados:
+            Modelos disponíveis baseados nos seus dados:
           </Text>
 
           <View style={styles.suggestionsList}>
@@ -112,7 +112,7 @@ const SmartErrorHandler: React.FC<SmartErrorHandlerProps> = ({
               <View key={index} style={styles.suggestionItem}>
                 <View style={styles.suggestionHeader}>
                   <Text size="sm" bold style={styles.suggestionModel}>
-                    🎯 {suggestion.model}
+                    {suggestion.model}
                   </Text>
                 </View>
                 <Text size="xs" style={styles.suggestionDescription}>
@@ -133,7 +133,7 @@ const SmartErrorHandler: React.FC<SmartErrorHandlerProps> = ({
       {errorType === 'network' && (
         <View style={styles.networkHelp}>
           <Text size="sm" bold style={styles.helpTitle}>
-            🔧 Possíveis Soluções:
+            Possíveis soluções:
           </Text>
           <View style={styles.helpList}>
             <Text size="xs" style={styles.helpItem}>• Verifique sua conexão com a internet</Text>
@@ -149,7 +149,7 @@ const SmartErrorHandler: React.FC<SmartErrorHandlerProps> = ({
           onPress={onRetry}
           activeOpacity={0.7}
         >
-          <Text style={styles.retryButtonText}>🔄 Tentar Novamente</Text>
+          <Text style={styles.retryButtonText}>Tentar Novamente</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -164,7 +164,7 @@ const SmartErrorHandler: React.FC<SmartErrorHandlerProps> = ({
       {error.data && (
         <View style={styles.debugSection}>
           <Text size="xs" style={styles.debugTitle}>
-            🔍 Dados enviados:
+            Dados enviados:
           </Text>
           <Text size="xs" style={styles.debugData}>
             {Object.entries(error.data).map(([key, value]) => 

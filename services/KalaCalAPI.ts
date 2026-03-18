@@ -3,7 +3,7 @@ import { Ocorrencia, OcorrenciaForm } from '@/components/ocorrencias/types';
 import env from '@/config/env';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
-import { AccountRecoveryPayload, ApiInfo, ApiResponse, AuthResponse, DeleteAccountPayload, ForgotPasswordPayload, LoginCredentials, MetricasSistema, RefreshTokenResponse, RegisterData, ResetPasswordPayload, User, XaiHealthcheck, XaiPaciente, XaiResultadoRequest, XaiResultadoResponse } from './types';
+import { AccountRecoveryPayload, ApiInfo, ApiResponse, AuthResponse, DeleteAccountPayload, ForgotPasswordPayload, HistoricoCompletoResponse, LoginCredentials, MetricasSistema, RefreshTokenResponse, RegisterData, ResetPasswordPayload, User, XaiHealthcheck, XaiPaciente, XaiResultadoRequest, XaiResultadoResponse } from './types';
 
 interface ApiConfig {
     baseURL: string;
@@ -315,6 +315,12 @@ class KalaCalAPI {
 
     static async getMetricasSistema(): Promise<ApiResponse<MetricasSistema>> {
         return this.makeRequest<MetricasSistema>(() => apiClient.get<MetricasSistema>('/api/kalacal/metricas/'));
+    }
+
+    static async getHistoricoCompleto(casoId: number | string): Promise<ApiResponse<HistoricoCompletoResponse>> {
+        return this.makeRequest<HistoricoCompletoResponse>(() =>
+            apiClient.get<HistoricoCompletoResponse>(`/api/kalacal/casos/${casoId}/historico-completo/`)
+        );
     }
 
     // ===== MÉTODOS DE CONVENIÊNCIA =====

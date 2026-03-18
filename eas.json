@@ -9,7 +9,12 @@
       "distribution": "internal"
     },
     "preview": {
-      "android": {"buildType": "apk"}
+      "android": {"buildType": "apk"},
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://kalacal-api-102830866843.us-central1.run.app",
+        "EXPO_PUBLIC_API_KEY": "mobile_kala_prod_f04e32235be9fc75e47bc1ba47b576c2",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyA-5kEHrG5mjhNTn46XXdsBpBH528Jh8LI"
+      }
     },
     "test": {
       "developmentClient": true,
@@ -22,7 +27,8 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://kalacal-api-102830866843.us-central1.run.app",
-        "EXPO_PUBLIC_API_KEY": "mobile_kala_prod_f04e32235be9fc75e47bc1ba47b576c2"
+        "EXPO_PUBLIC_API_KEY": "mobile_kala_prod_f04e32235be9fc75e47bc1ba47b576c2",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyA-5kEHrG5mjhNTn46XXdsBpBH528Jh8LI"
       }
     },
     "production-aab": {
@@ -32,7 +38,8 @@
       },
       "env": {
         "EXPO_PUBLIC_API_URL": "https://kalacal-api-102830866843.us-central1.run.app",
-        "EXPO_PUBLIC_API_KEY": "mobile_kala_prod_f04e32235be9fc75e47bc1ba47b576c2"
+        "EXPO_PUBLIC_API_KEY": "mobile_kala_prod_f04e32235be9fc75e47bc1ba47b576c2",
+        "EXPO_PUBLIC_GOOGLE_MAPS_API_KEY": "AIzaSyA-5kEHrG5mjhNTn46XXdsBpBH528Jh8LI"
       }
     }
   },

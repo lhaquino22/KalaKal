@@ -93,11 +93,46 @@ export interface MetricasSistema {
     [key: string]: any;
 }
 
+// ===== Histórico Unificado =====
+
+export interface ResultadoXAI {
+    id: number;
+    caso: number | null;
+    caso_identificador: string | null;
+    modo: 'padrao' | 'assistido';
+    dados_entrada: Record<string, any>;
+    valor_predito: number;
+    erro_modelo: number | null;
+    imagem_base64: string;
+    variaveis: string[];
+    abordagem: string;
+    total_features: number;
+    campos_informados: Record<string, any> | null;
+    campos_imputados: Record<string, any> | null;
+    criado_em: string;
+}
+
+export interface TimelineItem {
+    tipo: 'kalacal' | 'xai';
+    data: string;
+    dados: Record<string, any>;
+}
+
+export interface HistoricoCompletoResponse {
+    caso: Record<string, any>;
+    historico_kalacal: Record<string, any>[];
+    historico_xai: ResultadoXAI[];
+    timeline: TimelineItem[];
+    total_kalacal: number;
+    total_xai: number;
+}
+
 // ===== XAI (Explainable AI) =====
 
 export interface XaiResultadoResponse {
+    resultado_id?: number;
     valor_predito: number;
-    erro_modelo: number;
+    erro_modelo: number | null;
     imagem_base64: string; // data:image/png;base64,...
     variaveis: string[];
     abordagem?: string;

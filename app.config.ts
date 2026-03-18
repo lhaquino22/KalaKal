@@ -2,7 +2,7 @@ export default {
   expo: {
     name: "KalaCal",
     slug: "KalaCal",
-    owner: "kalacal-dev",
+    owner: "lhaquino",
     version: "0.0.3-alpha",
     orientation: "portrait",
     icon: "./assets/myIcon.png",
@@ -63,7 +63,7 @@ export default {
         origin: false,
       },
       eas: {
-        projectId: "ee148428-ba1e-4f60-9e28-8c8fc962a295",
+        projectId: "2352fb40-3288-4726-a957-c1b02a32c88e",
       },
     },
   },

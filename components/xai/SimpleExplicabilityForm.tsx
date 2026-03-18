@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Input, InputField } from '@/components/ui/input';
 import LoadingSpinner from '@/components/ui/loading-spinner';
@@ -195,7 +195,7 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
   };
 
   return (
-    <ScrollView style={[styles.container]}>
+    <View style={[styles.container]}>
       <View style={styles.formContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -404,7 +404,7 @@ const SimpleExplicabilityForm: React.FC<SimpleExplicabilityFormProps> = ({
           )}
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { XaiResultadoResponse } from '@/services/types';
 import { getFieldDisplayValue } from '@/utils/validationUtils';
@@ -36,14 +36,14 @@ const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({
   }
 
   return (
-    <ScrollView style={[styles.container]}>
+    <View style={[styles.container]}>
       <View style={styles.resultsCard}>
         <ResultsHeader result={result} />
         <PredictionSection result={result} />
         <ExplanationSection result={result} />
         <VariablesSection result={result} patientData={patientData} camposImputados={camposImputados} />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -114,13 +114,13 @@ const PredictionSection: React.FC<{ result: XaiResultadoResponse }> = ({ result 
       <View style={styles.predictionCard}>
         <Text size="xs" style={styles.predictionLabel}>Risco de Morte</Text>
         <Text size="2xl" bold style={styles.predictionValue}>
-          {result.valor_predito.toFixed(1)}%
+          {result.valor_predito != null ? result.valor_predito.toFixed(1) : "N/A"}%
         </Text>
       </View>
       <View style={styles.predictionCard}>
         <Text size="xs" style={styles.predictionLabel}>Margem de Erro</Text>
         <Text size="lg" bold style={styles.errorValue}>
-          ±{result.erro_modelo.toFixed(1)}%
+          {result.erro_modelo != null ? `±${result.erro_modelo.toFixed(1)}%` : "N/A"}
         </Text>
       </View>
     </View>

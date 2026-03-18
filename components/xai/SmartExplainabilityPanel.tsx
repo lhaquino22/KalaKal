@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Button, ButtonText } from '@/components/ui/button';
-import SimpleExplicabilityForm from './SimpleExplicabilityForm';
 import ExpandedPatientForm from './ExpandedPatientForm';
 import SmartExplanationResults from './SmartExplanationResults';
 import SmartErrorHandler from './SmartErrorHandler';
 import ImputationResultCard from './ImputationResultCard';
-import { useSmartExplainability } from '@/hooks/useMultiModelExplainability';
+import OcorrenciaPicker from '@/components/shared/OcorrenciaPicker';
 import { useExpandedExplainability, AnalysisMode } from '@/hooks/useExpandedExplainability';
 
 interface SmartExplainabilityPanelProps {
@@ -17,48 +16,31 @@ interface SmartExplainabilityPanelProps {
 const SmartExplainabilityPanel: React.FC<SmartExplainabilityPanelProps> = ({
   className = ''
 }) => {
-  // Hook do modo padrão (existente)
-  const standard = useSmartExplainability();
-  // Hook do modo assistido (novo)
+  // Hook unificado — ambos os modos usam /resultado-completo/ com modo diferente
   const expanded = useExpandedExplainability();
+  // Ocorrência opcional
+  const [selectedCasoId, setSelectedCasoId] = useState<string | undefined>(undefined);
 
   const isAssisted = expanded.mode === 'assistido';
 
-  // Selecionar estado ativo baseado no modo
-  const activeExplanation = isAssisted ? expanded.explanation : standard.explanation;
-  const activeLoading = isAssisted ? expanded.loading : standard.loading;
-  const activeError = isAssisted ? expanded.error : standard.error;
-  const activePatientData = isAssisted ? expanded.patientData : standard.patientData;
-
   const handleModeChange = (newMode: AnalysisMode) => {
-    // Limpar resultados ao trocar de modo
-    standard.clearExplanation();
     expanded.clearExplanation();
     expanded.setMode(newMode);
   };
 
   const handleFormSubmit = async (formData: Record<string, any>) => {
-    if (isAssisted) {
-      await expanded.generateExplanation(formData);
-    } else {
-      await standard.generateExplanation(formData);
-    }
+    const dataWithCaso = selectedCasoId
+      ? { ...formData, caso_id: parseInt(selectedCasoId, 10) }
+      : formData;
+    await expanded.generateExplanation(dataWithCaso);
   };
 
   const handleNewAnalysis = () => {
-    if (isAssisted) {
-      expanded.clearExplanation();
-    } else {
-      standard.clearExplanation();
-    }
+    expanded.clearExplanation();
   };
 
   const handleRetry = () => {
-    if (isAssisted) {
-      expanded.retryExplanation();
-    } else {
-      standard.retryExplanation();
-    }
+    expanded.retryExplanation();
   };
 
   const handleClearError = () => {
@@ -68,6 +50,15 @@ const SmartExplainabilityPanel: React.FC<SmartExplainabilityPanelProps> = ({
   return (
     <ScrollView style={[styles.container]}>
       <View style={styles.panel}>
+        {/* Seletor de Ocorrência */}
+        <View style={styles.ocorrenciaSection}>
+          <Text size="sm" style={styles.ocorrenciaLabel}>Associar a uma Ocorrencia (opcional)</Text>
+          <OcorrenciaPicker
+            value={selectedCasoId}
+            onChange={setSelectedCasoId}
+          />
+        </View>
+
         {/* Toggle de Modo */}
         <View style={styles.modeToggleContainer}>
           <TouchableOpacity
@@ -98,20 +89,14 @@ const SmartExplainabilityPanel: React.FC<SmartExplainabilityPanelProps> = ({
 
         {/* Workflow */}
         <View style={styles.workflow}>
-          {/* Formulário */}
+          {/* Formulário — ambos os modos usam o mesmo formulário de 17 campos */}
           <View style={styles.formSection}>
-            {isAssisted ? (
-              <ExpandedPatientForm
-                onSubmit={handleFormSubmit}
-                loading={activeLoading}
-                onFieldsChange={expanded.updateSuggestion}
-              />
-            ) : (
-              <SimpleExplicabilityForm
-                onSubmit={handleFormSubmit}
-                loading={activeLoading}
-              />
-            )}
+            <ExpandedPatientForm
+              onSubmit={handleFormSubmit}
+              loading={expanded.loading}
+              onFieldsChange={expanded.updateSuggestion}
+              mode={expanded.mode}
+            />
           </View>
 
           {/* Card de Imputação (apenas modo assistido) */}
@@ -125,12 +110,12 @@ const SmartExplainabilityPanel: React.FC<SmartExplainabilityPanelProps> = ({
           )}
 
           {/* Resultados */}
-          {(activeLoading || activeExplanation) && (
+          {(expanded.loading || expanded.explanation) && (
             <View style={styles.resultsSection}>
               <SmartExplanationResults
-                result={activeExplanation as any}
-                patientData={activePatientData}
-                loading={activeLoading}
+                result={expanded.explanation as any}
+                patientData={expanded.patientData}
+                loading={expanded.loading}
                 camposImputados={isAssisted && expanded.explanation ? expanded.explanation.campos_imputados : undefined}
               />
             </View>
@@ -138,16 +123,16 @@ const SmartExplainabilityPanel: React.FC<SmartExplainabilityPanelProps> = ({
         </View>
 
         {/* Tratamento de Erros */}
-        {activeError && (
+        {expanded.error && (
           <SmartErrorHandler
-            error={activeError}
+            error={expanded.error}
             onRetry={handleRetry}
             onClear={handleClearError}
           />
         )}
 
         {/* Ações Globais */}
-        {(activeExplanation || activeError) && (
+        {(expanded.explanation || expanded.error) && (
           <View style={styles.panelActions}>
             <Button
               onPress={handleNewAnalysis}
@@ -172,6 +157,14 @@ const styles = StyleSheet.create({
   panel: {
     padding: 8,
     gap: 24,
+  },
+  ocorrenciaSection: {
+    marginHorizontal: 8,
+    gap: 6,
+  },
+  ocorrenciaLabel: {
+    color: '#374151',
+    fontWeight: '500',
   },
   modeToggleContainer: {
     flexDirection: 'row',

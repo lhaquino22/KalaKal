@@ -143,20 +143,20 @@ export const EXPANDED_FIELDS: ExpandedFieldConfig[] = [
   },
   {
     key: 'urina', label: 'Alteração na cor da Urina?', type: 'boolean',
-    required: true, section: 'obrigatorio', origin: 'clinica',
-    importance: 'obrigatorio', priorityOrder: 0,
+    required: false, section: 'clinico', origin: 'clinica',
+    importance: 'importante', priorityOrder: 1,
     helper: 'Alteração na coloração da urina',
   },
   {
     key: 'faltadear', label: 'Falta de ar ou dispneia?', type: 'boolean',
-    required: true, section: 'obrigatorio', origin: 'clinica',
-    importance: 'obrigatorio', priorityOrder: 0,
+    required: false, section: 'clinico', origin: 'clinica',
+    importance: 'importante', priorityOrder: 1,
     helper: 'Presença de falta de ar ou dispneia',
   },
   {
     key: 'hemorragia', label: 'Hemorragia?', type: 'boolean',
-    required: true, section: 'obrigatorio', origin: 'clinica',
-    importance: 'obrigatorio', priorityOrder: 0,
+    required: false, section: 'clinico', origin: 'clinica',
+    importance: 'importante', priorityOrder: 1,
     helper: 'Presença de hemorragia',
   },
   // --- Adicionais: Clínicos ---

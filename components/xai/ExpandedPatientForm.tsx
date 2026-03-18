@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Animated } from 'react-native';
+import { View, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { Input, InputField } from '@/components/ui/input';
 import LoadingSpinner from '@/components/ui/loading-spinner';
@@ -16,6 +16,7 @@ interface ExpandedPatientFormProps {
   onSubmit: (formData: Record<string, any>) => void;
   loading?: boolean;
   onFieldsChange?: (filledFields: Record<string, any>) => void;
+  mode?: 'padrao' | 'assistido';
 }
 
 type FormValues = Record<string, any>;
@@ -24,7 +25,9 @@ const ExpandedPatientForm: React.FC<ExpandedPatientFormProps> = ({
   onSubmit,
   loading = false,
   onFieldsChange,
+  mode = 'assistido',
 }) => {
+  const isAssisted = mode === 'assistido';
   const [formData, setFormData] = useState<FormValues>(() => {
     const initial: FormValues = {};
     for (const field of EXPANDED_FIELDS) {
@@ -170,7 +173,7 @@ const ExpandedPatientForm: React.FC<ExpandedPatientFormProps> = ({
   const renderBooleanField = (field: ExpandedFieldConfig) => {
     const value = formData[field.key];
     const isIgnored = value === null;
-    const showAiIcon = !field.required && isIgnored;
+    const showAiIcon = isAssisted && !field.required && isIgnored;
 
     return (
       <View key={field.key} style={styles.fieldItem}>
@@ -211,7 +214,7 @@ const ExpandedPatientForm: React.FC<ExpandedPatientFormProps> = ({
               activeOpacity={0.7}
             >
               <Text size="sm" style={[styles.toggleTextNeutral, value === null && styles.toggleTextNeutralActive]}>
-                Ignorado
+                {isAssisted ? 'Ignorado' : 'Não informado'}
               </Text>
             </TouchableOpacity>
           )}
@@ -229,7 +232,7 @@ const ExpandedPatientForm: React.FC<ExpandedPatientFormProps> = ({
         <Text size="sm" style={styles.fieldLabel}>
           {field.label} {field.required && <Text style={styles.required}>*</Text>}
         </Text>
-        {!field.required && (!formData[field.key] || formData[field.key] === '') && (
+        {isAssisted && !field.required && (!formData[field.key] || formData[field.key] === '') && (
           <View style={styles.aiIconContainer}>
             <Text style={styles.aiIcon}>IA</Text>
           </View>
@@ -289,11 +292,13 @@ const ExpandedPatientForm: React.FC<ExpandedPatientFormProps> = ({
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.formContent}>
         <View style={styles.header}>
           <Text size="sm" style={styles.subtitle}>
-            Campos com IA serão estimados automaticamente
+            {isAssisted
+              ? 'Campos com IA serão estimados automaticamente'
+              : 'Preencha os dados disponíveis para a análise'}
           </Text>
         </View>
 
@@ -340,7 +345,7 @@ const ExpandedPatientForm: React.FC<ExpandedPatientFormProps> = ({
           )}
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 

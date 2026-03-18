@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, ScrollView } from 'react-native';
+import { View, StyleSheet, Image } from 'react-native';
 import { Text } from '@/components/ui/text';
 import { MODELS_CONFIG, ModelConfig } from '@/constants/modelsConfig';
 import { XaiResultadoResponse } from '@/services/types';
@@ -49,20 +49,20 @@ const EnhancedExplanationCard: React.FC<EnhancedExplanationCardProps> = ({
   }
 
   return (
-    <ScrollView style={[styles.container]}>
+    <View style={[styles.container]}>
       <View style={[styles.explanationCard, { borderLeftColor: modelConfig!.color }]}>
-        <ExplanationHeader 
-          modelConfig={modelConfig!} 
-          explanation={explanation} 
+        <ExplanationHeader
+          modelConfig={modelConfig!}
+          explanation={explanation}
         />
-        
-        <ExplanationContent 
+
+        <ExplanationContent
           explanation={explanation}
           patientData={patientData}
           modelConfig={modelConfig!}
         />
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
@@ -171,18 +171,18 @@ const ExplanationHeader: React.FC<{
   </View>
 );
 
-const PredictionValue: React.FC<{ value: number; error: number }> = ({ value, error }) => (
+const PredictionValue: React.FC<{ value: number; error: number | null }> = ({ value, error }) => (
   <View style={styles.predictionContainer}>
     <View style={styles.predictionCard}>
       <Text size="xs" style={styles.predictionLabel}>Risco de Morte</Text>
       <Text size="xl" bold style={styles.predictionValue}>
-        {value.toFixed(1)}%
+        {value != null ? value.toFixed(1) : "N/A"}%
       </Text>
     </View>
     <View style={styles.predictionCard}>
       <Text size="xs" style={styles.predictionLabel}>Erro do Modelo</Text>
       <Text size="lg" bold style={styles.errorValue}>
-        {error.toFixed(1)}%
+        {error != null ? `${error.toFixed(1)}%` : "N/A"}
       </Text>
     </View>
   </View>
@@ -276,7 +276,7 @@ const ModelPerformanceSection: React.FC<{
       <View style={styles.performanceStat}>
         <Text size="xs" style={styles.performanceLabel}>Risco:</Text>
         <Text size="sm" bold style={[styles.performanceValue, { color: modelConfig.color }]}>
-          {explanation.valor_predito.toFixed(2)}%
+          {explanation.valor_predito != null ? explanation.valor_predito.toFixed(2) : "N/A"}%
         </Text>
       </View>
     </View>

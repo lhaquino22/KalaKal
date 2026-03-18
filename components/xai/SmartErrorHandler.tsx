@@ -3,7 +3,7 @@ import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Text } from '@/components/ui/text';
 
 interface SmartErrorHandlerProps {
-  error: { message: string; data?: any } | null;
+  error: { message: string; code?: string } | null;
   onRetry: () => void;
   onClear: () => void;
 }
@@ -50,17 +50,25 @@ const SmartErrorHandler: React.FC<SmartErrorHandlerProps> = ({
   };
 
   const getErrorType = (): 'validation' | 'network' | 'server' | 'unknown' => {
+    // Classificação por código estruturado (prioritária)
+    if (error.code) {
+      const code = error.code;
+      if (['VALIDATION_ERROR', 'MODEL_NOT_FOUND', 'CLIENT_ERROR'].includes(code)) return 'validation';
+      if (['NETWORK_ERROR', 'TIMEOUT'].includes(code)) return 'network';
+      if (['INTERNAL_ERROR', 'SHAP_FAILED', 'PREDICTION_FAILED', 'IMPUTATION_FAILED', 'CALCULATION_ERROR'].includes(code)) return 'server';
+      if (['INVALID_CREDENTIALS', 'TOKEN_EXPIRED', 'TOKEN_INVALID', 'API_KEY_REQUIRED', 'API_KEY_INVALID', 'FORBIDDEN', 'AUTH_ERROR'].includes(code)) return 'validation';
+    }
+
+    // Fallback: regex no texto (compatibilidade com erros sem código)
     const message = error.message.toLowerCase();
-    
     if (message.includes('obrigatório') || message.includes('deve ser') || message.includes('inválido')) {
       return 'validation';
     } else if (message.includes('conexão') || message.includes('timeout') || message.includes('network')) {
       return 'network';
-    } else if (message.includes('500') || message.includes('servidor') || message.includes('server')) {
+    } else if (message.includes('servidor') || message.includes('server') || message.includes('interno')) {
       return 'server';
-    } else {
-      return 'unknown';
     }
+    return 'unknown';
   };
 
   const getErrorIcon = (type: string): string => {
@@ -161,15 +169,10 @@ const SmartErrorHandler: React.FC<SmartErrorHandlerProps> = ({
         </TouchableOpacity>
       </View>
 
-      {error.data && (
+      {__DEV__ && error.code && (
         <View style={styles.debugSection}>
           <Text size="xs" style={styles.debugTitle}>
-            Dados enviados:
-          </Text>
-          <Text size="xs" style={styles.debugData}>
-            {Object.entries(error.data).map(([key, value]) => 
-              `${key}: ${value}`
-            ).join(', ')}
+            [Debug] Código: {error.code}
           </Text>
         </View>
       )}

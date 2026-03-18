@@ -9,7 +9,7 @@ export interface UseExpandedExplainabilityReturn {
   setMode: (mode: AnalysisMode) => void;
   explanation: ResultadoCompletoResponse | null;
   loading: boolean;
-  error: { message: string; data?: any } | null;
+  error: { message: string; code?: string } | null;
   patientData: Record<string, any> | null;
   suggestedVariable: ExpandedFieldConfig | null;
   generateExplanation: (data: Record<string, any>) => Promise<void>;
@@ -22,7 +22,7 @@ export const useExpandedExplainability = (): UseExpandedExplainabilityReturn => 
   const [mode, setMode] = useState<AnalysisMode>('padrao');
   const [explanation, setExplanation] = useState<ResultadoCompletoResponse | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<{ message: string; data?: any } | null>(null);
+  const [error, setError] = useState<{ message: string; code?: string } | null>(null);
   const [patientData, setPatientData] = useState<Record<string, any> | null>(null);
   const [suggestedVariable, setSuggestedVariable] = useState<ExpandedFieldConfig | null>(null);
 
@@ -46,13 +46,15 @@ export const useExpandedExplainability = (): UseExpandedExplainabilityReturn => 
       if (result.success && result.data) {
         setExplanation(result.data);
       } else {
-        throw new Error(result.error || 'Erro desconhecido na geração da explicação');
+        setError({
+          message: result.error || 'Erro desconhecido na geração da explicação',
+          code: result.errorCode,
+        });
+        setExplanation(null);
       }
     } catch (err: any) {
-      console.error('Erro na explicação expandida:', err);
       setError({
         message: err.message || 'Erro desconhecido',
-        data: data,
       });
       setExplanation(null);
     } finally {

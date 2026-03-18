@@ -39,6 +39,9 @@ const SmartExplanationResults: React.FC<SmartExplanationResultsProps> = ({
     <View style={[styles.container]}>
       <View style={styles.resultsCard}>
         <ResultsHeader result={result} />
+        {result.aviso && result.features_descartadas && (
+          <DegradationBanner aviso={result.aviso} features={result.features_descartadas} />
+        )}
         <PredictionSection result={result} />
         <ExplanationSection result={result} />
         <VariablesSection result={result} patientData={patientData} camposImputados={camposImputados} />
@@ -101,6 +104,25 @@ const ResultsHeader: React.FC<{ result: XaiResultadoResponse & { model_used: str
         </Text>
       </View>
     )}
+  </View>
+);
+
+const DegradationBanner: React.FC<{ aviso: string; features: string[] }> = ({ aviso, features }) => (
+  <View style={styles.degradationBanner}>
+    <Text size="sm" bold style={styles.degradationTitle}>
+      Atenção
+    </Text>
+    <Text size="xs" style={styles.degradationMessage}>
+      {aviso}
+    </Text>
+    <View style={styles.degradationFeatures}>
+      <Text size="xs" style={styles.degradationFeaturesLabel}>
+        Variáveis descartadas:
+      </Text>
+      <Text size="xs" style={styles.degradationFeaturesList}>
+        {features.join(', ')}
+      </Text>
+    </View>
   </View>
 );
 
@@ -397,6 +419,38 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 9,
     fontWeight: '700',
+  },
+  degradationBanner: {
+    backgroundColor: '#fffbeb',
+    borderLeftWidth: 4,
+    borderLeftColor: '#f59e0b',
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 12,
+    borderRadius: 8,
+  },
+  degradationTitle: {
+    color: '#92400e',
+    marginBottom: 4,
+  },
+  degradationMessage: {
+    color: '#78350f',
+    lineHeight: 18,
+    marginBottom: 8,
+  },
+  degradationFeatures: {
+    backgroundColor: '#fef3c7',
+    padding: 8,
+    borderRadius: 4,
+  },
+  degradationFeaturesLabel: {
+    color: '#92400e',
+    fontWeight: '500',
+    marginBottom: 2,
+  },
+  degradationFeaturesList: {
+    color: '#78350f',
+    fontFamily: 'monospace',
   },
 });
 

@@ -29,6 +29,12 @@ export default function OcorrenciasLayout() {
             title: "Editar Ocorrência",
           }}
         />
+        <Stack.Screen
+          name="[id]/index"
+          options={{
+            title: "Detalhes da Ocorrência",
+          }}
+        />
       </Stack>
     </>
   );

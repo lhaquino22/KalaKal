@@ -2,8 +2,9 @@ import { faMicroscope } from "@fortawesome/free-solid-svg-icons/faMicroscope";
 import { faNotesMedical } from "@fortawesome/free-solid-svg-icons/faNotesMedical";
 import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons/faTriangleExclamation";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import OcorrenciaPicker from "../shared/OcorrenciaPicker";
 import React, { useMemo } from "react";
-import { ScrollView, TextInput, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import {
   Checkbox,
   CheckboxIcon,
@@ -53,24 +54,16 @@ export default function PaginatedForm({
     () => (
       <ScrollView className="w-full mt-4" showsVerticalScrollIndicator={false}>
         <VStack space="md" className="w-full">
-          <FormControl isRequired isInvalid={!!errors?.caso_id}>
+          <FormControl>
             <FormControlLabel>
-              <FormControlLabelText>ID do Caso</FormControlLabelText>
+              <FormControlLabelText>
+                Associar a uma Ocorrencia (opcional)
+              </FormControlLabelText>
             </FormControlLabel>
-            <TextInput
-              className={`bg-gray-100 rounded-lg px-4 py-3 text-base text-gray-800 ${
-                errors?.caso_id ? "border border-red-500" : ""
-              }`}
+            <OcorrenciaPicker
               value={formData.caso_id}
-              onChangeText={(text) => handleValueChange("caso_id", text)}
-              placeholder="Digite o identificador do caso"
-              placeholderTextColor="#9CA3AF"
+              onChange={(id) => handleValueChange("caso_id", id as any)}
             />
-            {errors?.caso_id && (
-              <Text className="text-red-500 text-sm mt-1">
-                {errors.caso_id[0]}
-              </Text>
-            )}
           </FormControl>
 
           <FormControl
@@ -262,9 +255,9 @@ export default function PaginatedForm({
             </Text>
 
             <View className="flex-row justify-between items-center py-2">
-              <Text className="text-gray-600 font-medium">ID do Caso</Text>
+              <Text className="text-gray-600 font-medium">Ocorrencia</Text>
               <Text className="text-gray-800 font-medium">
-                {apiResult?.caso_id || "Não especificado"}
+                {apiResult?.caso_id || "Avulso"}
               </Text>
             </View>
 

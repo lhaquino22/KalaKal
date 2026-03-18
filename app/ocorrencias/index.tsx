@@ -111,8 +111,10 @@ export default function OcorrenciasScreen() {
         </Button>
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {casos.map((caso) => (
-            <View
+            <TouchableOpacity
               key={caso.id}
+              activeOpacity={0.7}
+              onPress={() => router.push(`/ocorrencias/${caso.id}`)}
               className="bg-white rounded-xl p-4 mb-3 flex-row justify-between items-center shadow-sm"
             >
               <View className="flex-row items-center flex-1">
@@ -135,18 +137,18 @@ export default function OcorrenciasScreen() {
               </View>
 
               <View className="flex-row items-center gap-3">
-                <TouchableOpacity onPress={() => handleEdit(caso.id)} style={{ padding: 8 }}>
+                <TouchableOpacity onPress={(e) => { e.stopPropagation(); handleEdit(caso.id); }} style={{ padding: 8 }}>
                   <FontAwesomeIcon icon={faPen} size={18} color="gray" />
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  onPress={() => confirmDelete(caso.id, caso.identificador)}
+                  onPress={(e) => { e.stopPropagation(); confirmDelete(caso.id, caso.identificador); }}
                   style={{ padding: 8 }}
                 >
                   <FontAwesomeIcon icon={faTrash} color={colors.mainColor} size={18} />
                 </TouchableOpacity>
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>

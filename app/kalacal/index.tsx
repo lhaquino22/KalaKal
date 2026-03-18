@@ -63,7 +63,7 @@ export default function KalaCal() {
   }, []);
 
   const [formData, setFormData] = useState<KalacalFormData>({
-    caso_id: "",
+    caso_id: undefined,
     modelo: "clinico",
     faixa_etaria_kalacal: -1,
     sitios_sangramento: -1,
@@ -145,7 +145,7 @@ export default function KalaCal() {
         setErrors({ form: response.error || "Erro ao processar o cálculo" });
         Alert.alert(
           "Erro ao calcular",
-          response.data?.caso_id[0] || "Erro inesperado ao processar o cálculo"
+          response.error || "Erro inesperado ao processar o cálculo"
         );
       }
     } catch (error) {
@@ -239,7 +239,7 @@ export default function KalaCal() {
                 <Button
                   onPress={() => {
                     setFormData({
-                      caso_id: "",
+                      caso_id: undefined,
                       modelo: "clinico",
                       faixa_etaria_kalacal: -1,
                       sitios_sangramento: -1,

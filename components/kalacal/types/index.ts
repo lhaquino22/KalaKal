@@ -18,7 +18,7 @@ export interface KalacalResponse {
   }
 
 export interface KalacalFormData {
-    caso_id: string
+    caso_id?: string
     modelo: string
     faixa_etaria_kalacal: number
     sitios_sangramento: number

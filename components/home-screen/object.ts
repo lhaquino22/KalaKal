@@ -59,7 +59,7 @@ const menu: Menu[][] = [
   ],
   [
     {
-      image: require("@/assets/images/KalaCal.png"),
+      image: require("@/assets/images/IKalaCal.png"),
       icone: "calculator",
       titulo: "iKalaCal",
       cor: "seagreen",

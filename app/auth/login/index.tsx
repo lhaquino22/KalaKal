@@ -4,7 +4,6 @@ import { useAuth } from "@/hooks/useAPI";
 import { Link, useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
-  Alert,
   Image,
   ImageBackground,
   Keyboard,
@@ -25,16 +24,28 @@ export default function EntrarScreen() {
   const [username, setUsername] = useState("");
   const [senha, setSenha] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const router = useRouter();
   const { login } = useAuth();
 
+  const handleUsernameChange = (value: string) => {
+    setUsername(value);
+    if (errorMessage) setErrorMessage("");
+  };
+
+  const handleSenhaChange = (value: string) => {
+    setSenha(value);
+    if (errorMessage) setErrorMessage("");
+  };
+
   const SignIn = async () => {
     if (!username.trim() || !senha.trim()) {
-      Alert.alert("Ocorreu um erro", "Por favor, preencha todos os campos");
+      setErrorMessage("Por favor, preencha todos os campos.");
       return;
     }
 
     setLoading(true);
+    setErrorMessage("");
 
     try {
       const result = await login({
@@ -44,15 +55,12 @@ export default function EntrarScreen() {
       if (result.success) {
         router.replace("/home/(tabs)/menu");
       } else {
-        Alert.alert(
-          "Ocorreu um erro no login",
-          result.error || "Email ou senha incorretos. Tente novamente."
+        setErrorMessage(
+          result.error || "Usuário ou senha incorretos. Tente novamente."
         );
       }
     } catch (error) {
-      console.error("Erro ao fazer login:", error);
-      Alert.alert(
-        "Erro",
+      setErrorMessage(
         "Não foi possível conectar ao servidor. Verifique sua conexão."
       );
     } finally {
@@ -96,7 +104,7 @@ export default function EntrarScreen() {
                   <TextInput
                     style={estilo.textInput}
                     placeholder={"Usuário"}
-                    onChangeText={setUsername}
+                    onChangeText={handleUsernameChange}
                     placeholderTextColor="rgba(255,255,255,0.5)"
                     autoCapitalize="none"
                     autoCorrect={false}
@@ -109,12 +117,34 @@ export default function EntrarScreen() {
                     placeholder={"Senha"}
                     placeholderTextColor="rgba(255,255,255,0.5)"
                     secureTextEntry={true}
-                    onChangeText={setSenha}
+                    onChangeText={handleSenhaChange}
                     returnKeyType="done"
                     onSubmitEditing={() => SignIn()}
                     value={senha}
                   />
                 </View>
+                {errorMessage ? (
+                  <View
+                    style={{
+                      backgroundColor: "rgba(239, 68, 68, 0.15)",
+                      borderRadius: 8,
+                      padding: 12,
+                      marginTop: 16,
+                      width: 300,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "#FF375F",
+                        fontSize: 13,
+                        textAlign: "center",
+                        lineHeight: 18,
+                      }}
+                    >
+                      {errorMessage}
+                    </Text>
+                  </View>
+                ) : null}
                 <View style={estilo.buttonsContainer}>
                   <TouchableOpacity onPress={() => SignIn()}>
                     <Image

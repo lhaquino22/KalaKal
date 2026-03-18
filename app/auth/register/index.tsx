@@ -52,6 +52,7 @@ export default function RegisterScreen() {
     password_confirm: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [serverError, setServerError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { register } = useAuth();
@@ -69,12 +70,14 @@ export default function RegisterScreen() {
         return newErrors;
       });
     }
+    if (serverError) setServerError("");
   };
 
   const handleRegister = async () => {
     try {
       const validData = registerSchema.parse(formData);
       setErrors({});
+      setServerError("");
       setLoading(true);
 
       try {
@@ -87,16 +90,13 @@ export default function RegisterScreen() {
             [{ text: "OK", onPress: () => router.replace("/auth/login") }]
           );
         } else {
-          Alert.alert(
-            "Erro no cadastro",
+          setServerError(
             result.error ||
               "Não foi possível completar o cadastro. Verifique seus dados."
           );
         }
       } catch (error) {
-        console.error("Erro ao registrar:", error);
-        Alert.alert(
-          "Erro",
+        setServerError(
           "Não foi possível conectar ao servidor. Verifique sua conexão."
         );
       } finally {
@@ -266,6 +266,29 @@ export default function RegisterScreen() {
                     )}
                   </View>
                 </View>
+
+                {serverError ? (
+                  <View
+                    style={{
+                      backgroundColor: "rgba(239, 68, 68, 0.15)",
+                      borderRadius: 8,
+                      padding: 12,
+                      marginTop: 12,
+                      width: 300,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: "#FF375F",
+                        fontSize: 13,
+                        textAlign: "center",
+                        lineHeight: 18,
+                      }}
+                    >
+                      {serverError}
+                    </Text>
+                  </View>
+                ) : null}
 
                 <View style={estilo.buttonsContainer}>
                   <TouchableOpacity

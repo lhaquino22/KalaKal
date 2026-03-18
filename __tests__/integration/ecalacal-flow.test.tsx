@@ -308,9 +308,13 @@ describe("ECalacalApi - Integration", () => {
   });
 
   it("handles network error", async () => {
-    const networkError = new Error("Network Error");
-    (networkError as any).code = "ECONNABORTED";
-    mockGetXaiResultadoCompleto.mockRejectedValueOnce(networkError);
+    // makeRequest catches errors internally and returns {success: false, ...}
+    mockGetXaiResultadoCompleto.mockResolvedValueOnce({
+      success: false,
+      error: "A requisição demorou demais. Verifique sua conexão e tente novamente.",
+      errorCode: "TIMEOUT",
+      status: null,
+    });
 
     const result = await ECalacalApi.gerarExplicacaoCompleta(
       { Idademeses: 48, peso: 12.5, edema: true },
@@ -318,13 +322,17 @@ describe("ECalacalApi - Integration", () => {
     );
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("Timeout");
+    expect(result.error).toBeDefined();
+    expect(result.errorCode).toBe("TIMEOUT");
   });
 
   it("handles server error (500)", async () => {
-    const serverError: any = new Error("Server Error");
-    serverError.response = { status: 500, data: { message: "Internal error" } };
-    mockGetXaiResultadoCompleto.mockRejectedValueOnce(serverError);
+    mockGetXaiResultadoCompleto.mockResolvedValueOnce({
+      success: false,
+      error: "Erro interno do servidor. Tente novamente mais tarde.",
+      errorCode: "INTERNAL_ERROR",
+      status: 500,
+    });
 
     const result = await ECalacalApi.gerarExplicacaoCompleta(
       { Idademeses: 48, peso: 12.5, edema: true },
@@ -332,7 +340,8 @@ describe("ECalacalApi - Integration", () => {
     );
 
     expect(result.success).toBe(false);
-    expect(result.error).toContain("Internal error");
+    expect(result.error).toBeDefined();
+    expect(result.errorCode).toBe("INTERNAL_ERROR");
   });
 });
 

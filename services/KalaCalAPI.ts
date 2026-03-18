@@ -1,6 +1,7 @@
 import { KalacalFormData, KalacalOptions, KalacalResponse } from '@/components/kalacal/types';
 import { Ocorrencia, OcorrenciaForm } from '@/components/ocorrencias/types';
 import env from '@/config/env';
+import { parseApiError } from '@/utils/errorUtils';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { AccountRecoveryPayload, ApiInfo, ApiResponse, AuthResponse, DeleteAccountPayload, ForgotPasswordPayload, HistoricoCompletoResponse, LoginCredentials, MetricasSistema, RefreshTokenResponse, RegisterData, ResetPasswordPayload, User, XaiHealthcheck, XaiPaciente, XaiResultadoRequest, XaiResultadoResponse } from './types';
@@ -32,38 +33,28 @@ apiClient.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        
-        // Debug: Log headers sendo enviados
-        console.log('🔍 [DEBUG] Request Headers:', {
-            'Authorization': config.headers.Authorization,
-            'X-API-Key': config.headers['X-API-Key'],
-            'Content-Type': config.headers['Content-Type']
-        });
-        console.log('🔍 [DEBUG] Request URL:', config.url);
-        console.log('🔍 [DEBUG] Request Method:', config.method);
-        if (config.data) {
-            console.log('🔍 [DEBUG] Request Data:', JSON.stringify(config.data, null, 2));
+
+        if (__DEV__) {
+            console.log('[DEBUG] Request:', config.method?.toUpperCase(), config.url);
         }
-        
+
         return config;
     },
-    (error: AxiosError) => {
-        console.error('❌ [DEBUG] Request interceptor error:', error);
-        return Promise.reject(error);
-    }
+    (error: AxiosError) => Promise.reject(error)
 );
 
 apiClient.interceptors.response.use(
     (response: AxiosResponse) => {
-        console.log('✅ [DEBUG] Response Status:', response.status);
-        console.log('✅ [DEBUG] Response Data:', response.data);
+        if (__DEV__) {
+            console.log('[DEBUG] Response:', response.status, response.config.url);
+        }
         return response;
     },
     async (error: AxiosError) => {
-        console.error('❌ [DEBUG] Response Error Status:', error.response?.status);
-        console.error('❌ [DEBUG] Response Error Data:', error.response?.data);
-        console.error('❌ [DEBUG] Response Error Message:', error.message);
-        
+        if (__DEV__) {
+            console.error('[DEBUG] Error:', error.response?.status, error.config?.url);
+        }
+
         const originalRequest = error.config as any;
 
         if (error.response?.status === 401 && !originalRequest._retry) {
@@ -79,7 +70,6 @@ apiClient.interceptors.response.use(
                     return apiClient(originalRequest);
                 }
             } catch (refreshError: unknown) {
-                console.error('❌ [DEBUG] Token refresh failed:', refreshError);
                 await AsyncStorage.multiRemove(['accessToken', 'refreshToken', 'user']);
             }
         }
@@ -89,30 +79,6 @@ apiClient.interceptors.response.use(
 );
 
 class KalaCalAPI {
-    static handleError(error: AxiosError): ApiResponse {
-        if (error.response) {
-            const responseData = error.response.data as any;
-            return {
-                success: false,
-                error: responseData?.message || responseData?.detail || 'Erro na requisição',
-                status: error.response.status,
-                data: responseData
-            };
-        } else if (error.request) {
-            return {
-                success: false,
-                error: 'Erro de conexão. Verifique sua internet.',
-                status: null
-            };
-        } else {
-            return {
-                success: false,
-                error: error.message || 'Erro desconhecido',
-                status: null
-            };
-        }
-    }
-
     static async makeRequest<T>(requestFn: () => Promise<AxiosResponse<T>>): Promise<ApiResponse<T>> {
         try {
             const response = await requestFn();
@@ -122,19 +88,12 @@ class KalaCalAPI {
                 status: response.status,
             };
         } catch (unknownError) {
-            const err = unknownError as unknown;
-            if (axios.isAxiosError(err)) {
-                return {
-                    success: false,
-                    error: (err.response?.data as any)?.detail || err.message || "Erro desconhecido",
-                    status: err.response?.status,
-                    data: err.response?.data as any
-                };
-            }
-
+            const parsed = parseApiError(unknownError);
             return {
                 success: false,
-                error: err instanceof Error ? err.message : "Erro desconhecido",
+                error: parsed.message,
+                errorCode: parsed.code,
+                status: parsed.statusCode ?? null,
             };
         }
     }

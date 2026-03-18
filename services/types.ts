@@ -2,6 +2,7 @@ export interface ApiResponse<T = any> {
     success: boolean;
     data?: T;
     error?: string;
+    errorCode?: string;
     status?: number | null;
 }
 
@@ -137,6 +138,8 @@ export interface XaiResultadoResponse {
     variaveis: string[];
     abordagem?: string;
     total_features?: number;
+    features_descartadas?: string[];
+    aviso?: string;
 }
 
 export type XaiResultadoRequest = { [key: string]: any };

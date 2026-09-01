@@ -1,40 +1,61 @@
-# Welcome to your Expo app 👋
+# KalaCal
 
-Mais informações na wiki.
+Mobile app that helps health professionals assess death risk in visceral
+leishmaniasis (kala-azar) cases, and shows why the model reached each
+prediction instead of returning a bare score.
 
-## Get started
+React Native, Expo and TypeScript. The XGBoost models and their SHAP
+explanations run behind a Django REST API kept in a separate repository.
 
-1. Install dependencies
+## What the app does
 
-   ```bash
-   npm install
-   ```
+**Risk analysis with explanations.** A 17-field clinical form feeds an XGBoost
+ensemble. The result screen pairs the predicted risk with the SHAP contribution
+of each field, so the professional can see which findings drove it.
 
-2. Start the app
+**Two analysis modes.** `padrao` uses only what was actually recorded.
+`assistido` runs ANE imputation to estimate missing values, and the interface
+marks which fields were estimated rather than measured.
 
-   ```bash
-    npx expo start
-   ```
+**Case management.** JWT authentication, CRUD for clinical occurrences, and
+account recovery, password reset and account deletion flows.
 
-In the output, you'll find options to open the app in a
+**Care points map.** Georeferenced health units with coverage polygons.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+**Reference content.** Material on leishmaniasis, the health promotion line and
+the state confrontation plan.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Stack
 
-## Learn more
+Expo Router for file-based routing, gluestack-ui over NativeWind and Tailwind
+for the interface, zod for form schemas, axios for the API layer, Jest and
+React Native Testing Library for the test suite.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Running it
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+pnpm install
+npx expo start
+pnpm test
+```
 
-## Join the community
+`EXPO_PUBLIC_API_URL`, `EXPO_PUBLIC_API_KEY` and
+`EXPO_PUBLIC_GOOGLE_MAPS_API_KEY` are validated at startup by `config/env.ts`
+and have to be set before a build. Android builds go through EAS:
 
-Join our community of developers creating universal apps.
+```bash
+pnpm build-production      # APK
+pnpm build-production-aab  # AAB for Google Play
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## About this fork
+
+Upstream is [miasK3011/KalaKal](https://github.com/miasK3011/KalaKal), by
+Neemias Calebe.
+
+What I contributed here: the explainability module (the unified 17-field form,
+the multi-model panel and the ANE expanded analysis), the error handling
+architecture (global Error Boundary, a centralized parser for API errors,
+inline validation and a degradation banner), the Jest and Testing Library
+suite, the account recovery and deletion flows, and the production build
+configuration.

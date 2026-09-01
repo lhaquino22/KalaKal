@@ -76,3 +76,5 @@ pids
 
 expo-env.d.ts
 # @end expo-cli
+# guia de desenvolvimento local (contem detalhes de infraestrutura)
+CLAUDE.md
